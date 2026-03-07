@@ -30,7 +30,7 @@ export function SignUpForm(): React.ReactElement {
       const { confirmPassword, ...signUpData } = values;
       const result = await signUp(signUpData).unwrap();
       dispatch(setAuth(result));
-      router.push('/');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Sign up error:', error);
       // Error handling can be improved with toast notifications
@@ -40,7 +40,7 @@ export function SignUpForm(): React.ReactElement {
   return (
     <Card className="w-full border-0 shadow-lg">
       <CardHeader className="space-y-1 pb-4">
-        <CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
+        <CardTitle className="text-2xl font-semibold">Create your StokTrust account</CardTitle>
         <CardDescription>Enter your information to create a new account</CardDescription>
       </CardHeader>
       <CardContent>
@@ -126,7 +126,7 @@ export function SignUpForm(): React.ReactElement {
         </Button>
         <div className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/signin" className="text-primary hover:underline">
             Sign in
           </Link>
         </div>

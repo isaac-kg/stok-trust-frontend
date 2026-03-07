@@ -25,7 +25,7 @@ export function SignInForm(): React.ReactElement {
     try {
       const result = await signIn(values).unwrap();
       dispatch(setAuth(result));
-      router.push('/');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Sign in error:', error);
       // Error handling can be improved with toast notifications
@@ -35,7 +35,7 @@ export function SignInForm(): React.ReactElement {
   return (
     <Card className="w-full border-0 shadow-lg">
       <CardHeader className="space-y-1 pb-4">
-        <CardTitle className="text-2xl font-semibold">Sign in</CardTitle>
+        <CardTitle className="text-2xl font-semibold">Sign in to StokTrust</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>

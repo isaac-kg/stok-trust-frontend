@@ -1,13 +1,13 @@
 import { SignInForm } from '@/features/auth/components/sign-in-form';
 
-export default function LoginPage(): React.ReactElement {
+export default function SignInPage(): React.ReactElement {
   return (
     <div className="flex min-h-screen">
       {/* Left side - Branding/Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 opacity-90" />
         <div className="relative z-10 max-w-md text-center space-y-6">
-          <h1 className="text-4xl font-bold text-white">Welcome Back</h1>
+          <h1 className="text-4xl font-bold text-white">Welcome to StokTrust</h1>
           <p className="text-lg text-white/90">
             Sign in to continue to your account and access all the features.
           </p>
