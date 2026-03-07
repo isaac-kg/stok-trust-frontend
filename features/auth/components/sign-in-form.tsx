@@ -22,6 +22,19 @@ export function SignInForm(): React.ReactElement {
   };
 
   const handleSubmit = async (values: SignInFormValues): Promise<void> => {
+
+    //HARDCODE 
+    const result = {
+      accessToken: 'test-access-token',
+      refreshToken: 'test-refresh-token',
+      user: {
+        id: '123',
+        email: values.email,
+      },
+    };
+    dispatch(setAuth(result));
+    router.push('/dashboard');
+    return;
     try {
       const result = await signIn(values).unwrap();
       dispatch(setAuth(result));
