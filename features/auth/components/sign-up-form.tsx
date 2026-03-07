@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppDispatch } from '@/store/hooks';
 import { setAuth } from '../auth-slice';
+import Link from 'next/link';
 
 export function SignUpForm(): React.ReactElement {
   const router = useRouter();
@@ -37,9 +38,9 @@ export function SignUpForm(): React.ReactElement {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+    <Card className="w-full border-0 shadow-lg">
+      <CardHeader className="space-y-1 pb-4">
+        <CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
         <CardDescription>Enter your information to create a new account</CardDescription>
       </CardHeader>
       <CardContent>
@@ -123,6 +124,12 @@ export function SignUpForm(): React.ReactElement {
           </svg>
           Sign up with Google
         </Button>
+        <div className="mt-4 text-center text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <Link href="/login" className="text-primary hover:underline">
+            Sign in
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

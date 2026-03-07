@@ -33,9 +33,9 @@ export function SignInForm(): React.ReactElement {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
+    <Card className="w-full border-0 shadow-lg">
+      <CardHeader className="space-y-1 pb-4">
+        <CardTitle className="text-2xl font-semibold">Sign in</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>
