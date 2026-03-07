@@ -1,0 +1,43 @@
+---
+description: Project structure and file organization standards
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Project Structure
+
+Next.js (App Router) frontend using TypeScript, Redux Toolkit + RTK Query, TailwindCSS, and shadcn/ui.
+
+## Directory Structure
+
+```
+/app                          - Next.js routes and layouts (App Router)
+/components/ui                - shadcn/ui generated primitives
+/components/shared            - reusable presentational components
+/features/{feature}/          - co-located redux slice, rtk query api, feature components
+/store                        - Redux store configuration and middleware
+/lib                          - helpers (env parsing, utils, cn.ts)
+/styles                       - Tailwind and shadcn global styles
+/tests                        - Playwright E2E tests
+```
+
+## Feature Organization
+
+Each feature should be organized as:
+
+```
+/features/{feature}/
+  ├── components/           - Feature-specific components
+  ├── model/
+  │   └── types.ts         - Feature types
+  ├── schemas/             - Yup validation schemas
+  ├── {feature}-slice.ts   - Redux slice
+  └── {feature}-api.ts     - RTK Query API
+```
+
+## Routing & Data
+
+- Follow Next.js App Router conventions
+- Do not put business logic in frontend routes
+- Only use client components for event handling, browser APIs, or local state
+- Use Server Components by default

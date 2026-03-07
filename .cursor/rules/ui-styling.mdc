@@ -1,0 +1,69 @@
+---
+description: UI component and styling guidelines using shadcn/ui and TailwindCSS
+globs: ["**/*.tsx", "**/*.jsx", "**/*.css"]
+alwaysApply: true
+---
+
+# UI & Styling Guidelines
+
+## Component Library
+
+- Use **shadcn/ui** components (Button, Dialog, Input, etc.) before custom ones
+- All shadcn/ui primitives are in `/components/ui/`
+- Build custom components in `/components/shared/` for reusability
+
+## Styling
+
+- Use **TailwindCSS** for all styling; prefer utility classes
+- Use `cn()` helper (clsx + tailwind-merge) for conditional classes
+- Implement responsive design (mobile-first approach)
+- Use **cva** (class-variance-authority) for reusable component variants
+
+## Responsive Design
+
+```tsx
+// Mobile-first approach
+<div className="flex flex-col md:flex-row lg:gap-4">
+  <div className="w-full md:w-1/2">Content</div>
+</div>
+```
+
+## Component Variants with CVA
+
+```tsx
+import { cva, type VariantProps } from "class-variance-authority";
+
+const buttonVariants = cva(
+  "rounded font-medium transition",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        outline: "border border-input hover:bg-accent",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3",
+        lg: "h-11 px-8",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+```
+
+## Accessibility
+
+- Follow accessibility best practices (keyboard navigation, ARIA attributes)
+- Always connect `<Label>` with inputs via `htmlFor`
+- Ensure proper focus management
+- Use semantic HTML elements
+
+## Images
+
+- Optimize images: use Next.js `<Image>` component
+- Prefer WebP format when possible
+- Always specify width and height

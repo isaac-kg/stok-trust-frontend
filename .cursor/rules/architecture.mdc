@@ -1,0 +1,132 @@
+---
+description: Performance optimization, state management, and architecture patterns
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---
+
+# Architecture & Performance
+
+## Performance
+
+- Minimize `use client`; use Server Components by default
+- Use `Suspense` with fallbacks for async client components
+- Use dynamic imports for non-critical components
+- Optimize images: use Next.js `<Image>` with WebP when possible
+- Avoid duplicating server state in Redux — use RTK Query caching
+
+## State Management
+
+### RTK Query for Server Data
+
+- Use **RTK Query** for ALL server data (queries/mutations)
+- Define APIs in `/features/{feature}/{feature}-api.ts`
+- Use tags for cache invalidation/refetching
+- Do NOT manually manipulate RTK Query cache
+- Do NOT use axios or custom fetch wrappers; RTK Query baseQuery handles HTTP
+
+```typescript
+// Example: /features/users/users-api.ts
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const usersApi = createApi({
+  reducerPath: 'usersApi',
+  baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL }),
+  tagTypes: ['User'],
+  endpoints: (builder) => ({
+    getUsers: builder.query({
+      query: () => '/users',
+      providesTags: ['User'],
+    }),
+    updateUser: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/users/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+  }),
+});
+
+export const { useGetUsersQuery, useUpdateUserMutation } = usersApi;
+```
+
+### Redux Slices for UI State
+
+- Use Redux slices for UI/local state ONLY
+- Define slices in `/features/{feature}/{feature}-slice.ts`
+- Do NOT use slices for server data
+
+```typescript
+// Example: /features/ui/ui-slice.ts
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+
+interface UiState {
+  sidebarOpen: boolean;
+  theme: 'light' | 'dark';
+}
+
+const initialState: UiState = {
+  sidebarOpen: false,
+  theme: 'light',
+};
+
+export const uiSlice = createSlice({
+  name: 'ui',
+  initialState,
+  reducers: {
+    toggleSidebar: (state) => {
+      state.sidebarOpen = !state.sidebarOpen;
+    },
+    setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+      state.theme = action.payload;
+    },
+  },
+});
+
+export const { toggleSidebar, setTheme } = uiSlice.actions;
+export const uiReducer = uiSlice.reducer;
+```
+
+## Code Splitting
+
+```tsx
+// Dynamic imports for non-critical components
+import dynamic from 'next/dynamic';
+
+const HeavyComponent = dynamic(() => import('@/components/heavy-component'), {
+  loading: () => <p>Loading...</p>,
+  ssr: false, // if component uses browser-only APIs
+});
+```
+
+## Server vs Client Components
+
+### Use Server Components for:
+- Static content
+- Data fetching (with async/await)
+- SEO-critical content
+- Initial page loads
+
+### Use Client Components for:
+- Event handlers (onClick, onChange, etc.)
+- Browser APIs (localStorage, window, etc.)
+- State management (useState, useReducer)
+- Effects (useEffect)
+- Interactive UI elements
+
+```tsx
+// Server Component (default)
+export default async function UsersPage() {
+  const users = await fetchUsers(); // Direct async fetch
+  return <UsersList users={users} />;
+}
+
+// Client Component (only when needed)
+"use client";
+
+export function InteractiveButton() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```

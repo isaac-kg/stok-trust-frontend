@@ -1,0 +1,51 @@
+---
+description: Code style guidelines, naming conventions, and TypeScript standards
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+---
+
+# Code Style Guidelines
+
+## Code Style
+
+- Always write TypeScript with `strict` mode enabled
+- Prefer functional + declarative patterns; avoid classes
+- Use descriptive variable names with auxiliaries (isLoading, hasError, canSubmit)
+- Structure files in order: exported component → subcomponents → helpers → static content → types
+- Use named exports for all components; avoid default exports
+- Use `function` keyword for pure functions (not arrow functions unless inline)
+- Prefer interfaces over types; avoid enums, use maps/objects instead
+- For conditionals, avoid extra braces when expression is simple
+
+## Naming Conventions
+
+- **Directories**: lowercase-with-dashes (e.g., `components/auth-wizard`)
+- **Files**: match component or feature (e.g., `login-form.tsx`, `profile-slice.ts`)
+- **Redux slices**: end with `slice.ts`
+- **RTK Query APIs**: end with `api.ts`
+
+## TypeScript Standards
+
+- Always annotate return types of functions
+- Define props using `interface`
+- Co-locate feature types in `/features/{feature}/model/types.ts`
+- Use `PayloadAction<Type>` from Redux Toolkit when defining reducers
+
+## Example
+
+```typescript
+// Good
+export interface ButtonProps {
+  isLoading: boolean;
+  onClick: () => void;
+}
+
+export function Button({ isLoading, onClick }: ButtonProps): JSX.Element {
+  return <button disabled={isLoading} onClick={onClick}>Submit</button>;
+}
+
+// Avoid
+export default class Button extends Component { ... }
+export type ButtonProps = { ... }
+const Button = ({ isLoading, onClick }) => { ... }
+```

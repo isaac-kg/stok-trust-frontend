@@ -1,0 +1,127 @@
+---
+description: General conventions, best practices, and Git workflow
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# General Conventions
+
+## Environment Variables
+
+- Never hardcode API URLs or secrets
+- Always use environment variables with `NEXT_PUBLIC_*` prefix for client-side access
+- Store sensitive values in `.env.local` (never commit)
+- Document all required env vars in `.env.example`
+
+```typescript
+// Good
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+// Bad
+const apiUrl = 'https://api.example.com';
+```
+
+## Component Patterns
+
+### Loading States
+
+```tsx
+export function UserProfile({ userId }: { userId: string }): JSX.Element {
+  const { data: user, isLoading, error } = useGetUserQuery(userId);
+
+  if (isLoading) return <Skeleton />;
+  if (error) return <ErrorMessage error={error} />;
+  if (!user) return <EmptyState message="User not found" />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+### Error Handling
+
+```tsx
+import { useToast } from '@/components/ui/use-toast';
+
+export function UpdateProfileForm(): JSX.Element {
+  const [updateUser] = useUpdateUserMutation();
+  const { toast } = useToast();
+
+  const handleSubmit = async (values: ProfileFormValues) => {
+    try {
+      await updateUser(values).unwrap();
+      toast({ title: 'Profile updated successfully' });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return <Formik onSubmit={handleSubmit}>...</Formik>;
+}
+```
+
+## URL State Management
+
+- Use `nuqs` for URL search parameter state when needed
+- Keep URL state minimal and focused on shareable/bookmarkable data
+
+```typescript
+import { useQueryState } from 'nuqs';
+
+export function SearchResults(): JSX.Element {
+  const [search, setSearch] = useQueryState('q');
+  
+  return <input value={search || ''} onChange={(e) => setSearch(e.target.value)} />;
+}
+```
+
+## Accessibility
+
+- Use semantic HTML elements
+- Add ARIA labels where needed
+- Ensure keyboard navigation works
+- Test with screen readers
+- Maintain proper heading hierarchy (h1 → h2 → h3)
+- Use proper contrast ratios
+
+## Documentation
+
+- Add JSDoc comments for complex functions
+- Document props interfaces
+- Keep README updated with setup instructions
+- Document any non-obvious patterns or workarounds
+
+## Git Workflow
+
+### Conventional Commits
+
+Use conventional commit format:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `chore:` - Maintenance tasks
+- `refactor:` - Code refactoring
+- `docs:` - Documentation changes
+- `test:` - Test additions or changes
+- `style:` - Code style changes (formatting, etc.)
+
+Examples:
+```
+feat: add user profile page
+fix: resolve login redirect issue
+chore: update dependencies
+refactor: simplify form validation logic
+docs: update README with deployment steps
+test: add smoke test for dashboard
+```
+
+### Pull Requests
+
+- Keep PRs small and focused (ideally < 400 lines)
+- Write clear PR descriptions
+- Link to related issues
+- Request reviews from appropriate team members
+- Ensure CI passes before merging
+- Squash commits when merging

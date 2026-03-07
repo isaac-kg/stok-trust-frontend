@@ -1,0 +1,240 @@
+---
+description: Playwright E2E testing guidelines and MCP integration for agent-driven testing
+globs: ["tests/**/*.ts", "playwright.config.ts", "**/*.spec.ts"]
+alwaysApply: true
+---
+
+# Testing with Playwright
+
+## Overview
+
+- Use **Playwright** for all E2E tests; unit tests are optional
+- Keep tests under `tests/` with `*.spec.ts` extension
+- Do NOT add axios or custom fetch wrappers for tests
+- Every user-facing route must have at least one smoke test
+
+## Test Organization
+
+```
+/tests
+├── fixtures/              - Shared fixtures
+├── selectors/            - Central testids/selectors (if needed)
+├── utils/
+│   ├── auth.ts          - Auth helper functions
+│   └── wait.ts          - Custom wait helpers
+└── *.spec.ts            - Test files
+```
+
+## Locator Strategy
+
+### Prefer Semantic Locators (in order of preference)
+
+1. `getByRole` - Most semantic and accessible
+2. `getByLabel` - For form inputs
+3. `getByPlaceholder` - For inputs without labels
+4. `getByText` - For buttons and links
+5. `data-testid` - Only as last resort (use kebab-case)
+
+```typescript
+// Good - semantic locators
+await page.getByRole('button', { name: /sign in/i }).click();
+await page.getByLabel(/email/i).fill('user@example.com');
+await page.getByPlaceholder(/search/i).fill('query');
+
+// Acceptable - when semantic locators aren't available
+await page.getByTestId('user-dropdown').click();
+
+// Bad - brittle selectors
+await page.locator('.btn-primary').click(); // CSS class
+await page.locator('#submit-btn').click();  // ID selector
+```
+
+## Smoke Tests
+
+Every user-facing route needs at least one smoke test:
+
+```typescript
+// tests/home.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('home renders and navigates', async ({ page }) => {
+  await page.goto('/');
+  
+  // Has unique title
+  await expect(page).toHaveTitle(/.+/);
+  
+  // Has main landmark
+  await expect(page.getByRole('main')).toBeVisible();
+  
+  // Navigation works
+  await page.getByRole('link', { name: /get started/i }).click();
+  await expect(page).toHaveURL(/getting-started/);
+});
+```
+
+## Helper Functions
+
+Create reusable helpers for common flows:
+
+```typescript
+// tests/utils/auth.ts
+import type { Page } from '@playwright/test';
+
+export interface SignInInput { 
+  email: string; 
+  password: string; 
+}
+
+export async function signIn(
+  page: Page, 
+  { email, password }: SignInInput
+): Promise<void> {
+  await page.goto('/login');
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await page.waitForURL('/dashboard');
+}
+```
+
+## Waiting Strategies
+
+Avoid `page.waitForTimeout`. Use condition-based waits:
+
+```typescript
+// Good - wait for conditions
+await page.waitForURL('/dashboard');
+await page.getByRole('button', { name: /submit/i }).isVisible();
+await page.waitForLoadState('networkidle');
+
+// Bad - fixed timeouts
+await page.waitForTimeout(3000);
+```
+
+## Playwright Config
+
+```typescript
+// playwright.config.ts
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  reporter: [['list'], ['html', { open: 'never' }]],
+  use: {
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
+  ],
+});
+```
+
+## Package Scripts
+
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "mcp:playwright": "npx @playwright/mcp@latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}
+```
+
+## Test Best Practices
+
+- Use TypeScript everywhere; annotate return types in helpers/fixtures
+- Prefer small, deterministic tests over broad, flaky "journeys"
+- Mark slow/fragile tests with `test.slow()`
+- Keep tests under 30 seconds whenever possible
+- Use `.env.test` for test-only environment values; never commit secrets
+- Run tests in parallel by default
+- Use `test.describe` to group related tests
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('User Authentication', () => {
+  test('should sign in successfully', async ({ page }) => {
+    // ... test implementation
+  });
+
+  test('should show error for invalid credentials', async ({ page }) => {
+    // ... test implementation
+  });
+});
+
+test.describe('Slow operations', () => {
+  test.slow(); // Mark entire group as slow
+
+  test('large data import', async ({ page }) => {
+    // ... test implementation
+  });
+});
+```
+
+## MCP Playwright (Dev Only)
+
+### Purpose
+
+Enable agent-driven, exploratory testing via the **Playwright MCP** server.
+
+### Setup
+
+This is **dev-only**. Never add MCP servers to production dependencies.
+
+1. Add convenience script (already in package.json above):
+   ```json
+   "mcp:playwright": "npx @playwright/mcp@latest"
+   ```
+
+2. Document MCP usage in `docs/mcp.claude.example.json` (do NOT commit to user config):
+   ```json
+   {
+     "mcpServers": {
+       "playwright": { 
+         "command": "npx", 
+         "args": ["@playwright/mcp@latest"] 
+       }
+     }
+   }
+   ```
+
+### Developer Workflow
+
+1. Start app: `npm run dev` (expects http://localhost:3000)
+2. Start MCP: `npm run mcp:playwright`
+3. In MCP client (e.g., Claude Desktop), instruct:
+   "Open /login, fill the form, submit, report visible error. Generate a Playwright spec."
+
+### Safety
+
+- Do not store sensitive tokens in MCP prompts or transcripts
+- Keep MCP server commands in scripts or docs; do not start them from tests
+- If using `data-testid`, ensure they reveal no private info
+
+## PR Checklist
+
+Before submitting a PR:
+
+- ✅ Ensure each affected route has/updates a smoke test
+- ✅ Tests use semantic locators; no brittle CSS/XPath selectors
+- ✅ `npm run test:e2e` passes locally
+- ✅ Attach test report on CI failure
+- ✅ No flakiness: avoid fixed sleeps; use condition-based waits
+- ✅ MCP usage (if any) documented in PR notes
+- ✅ No MCP configs committed outside `docs/`
