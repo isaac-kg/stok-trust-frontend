@@ -29,8 +29,11 @@ export function SignInForm(): React.ReactElement {
       refreshToken: 'test-refresh-token',
       user: {
         id: '123',
+        firstName: 'John',
+        lastName: 'Doe',
         email: values.email,
       },
+      token: 'test-token',
     };
     dispatch(setAuth(result));
     router.push('/dashboard');
