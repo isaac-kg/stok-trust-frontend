@@ -6,7 +6,7 @@ export default function SignUpPage(): React.ReactElement {
       {/* Left side - Branding/Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 opacity-90" />
-        <div className="relative z-10 max-w-md text-center space-y-6">
+        <div className="relative z-10 max-w-md space-y-6">
           <h1 className="text-4xl font-bold text-white">Join StokTrust</h1>
           <p className="text-lg text-white/90">
             Create your account today and start managing your stock portfolio with confidence.
