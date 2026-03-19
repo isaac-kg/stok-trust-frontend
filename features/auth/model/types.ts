@@ -2,8 +2,9 @@ export interface SignUpRequest {
   firstName: string;
   lastName: string;
   email: string;
-  cellphoneNumber: string;
+  cellNumber: string;
   password: string;
+  role: 'user' | 'admin' | string;
 }
 
 export interface SignInRequest {
@@ -13,15 +14,31 @@ export interface SignInRequest {
 
 export interface AuthResponse {
   user: {
-    id: string;
-    firstName: string;
-    lastName: string;
+    services?: {
+      password?: string;
+    };
+    profile?: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      cellNumber?: string;
+      idNumber?: string;
+      passportNumber?: string;
+    };
+    verifications?: {
+      email?: boolean;
+      cellNumber?: boolean;
+    };
+    role?: string;
+    isAccountActive?: boolean;
   };
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthState {
   isAuthenticated: boolean;
   user: AuthResponse['user'] | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
 }

@@ -20,15 +20,15 @@ export function SignUpForm(): React.ReactElement {
     firstName: '',
     lastName: '',
     email: '',
-    cellphoneNumber: '',
+    cellNumber: '',
     password: '',
     confirmPassword: '',
   };
 
   const handleSubmit = async (values: SignUpFormValues): Promise<void> => {
     try {
-      const { confirmPassword, ...signUpData } = values;
-      const result = await signUp(signUpData).unwrap();
+      const { confirmPassword, ...rest } = values;
+      const result = await signUp({ ...rest, role: 'user' }).unwrap();
       dispatch(setAuth(result));
       router.push('/dashboard');
     } catch (error) {
@@ -64,7 +64,7 @@ export function SignUpForm(): React.ReactElement {
                 placeholder="john.doe@example.com"
               />
               <FormField
-                name="cellphoneNumber"
+                name="cellNumber"
                 label="Cellphone Number"
                 type="tel"
                 placeholder="+1234567890"

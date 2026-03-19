@@ -10,7 +10,7 @@ export const signUpSchema = Yup.object({
   email: Yup.string()
     .email('Please enter a valid email address')
     .required('Email is required'),
-  cellphoneNumber: Yup.string()
+  cellNumber: Yup.string()
     .matches(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 'Please enter a valid phone number')
     .required('Cellphone number is required'),
   password: Yup.string()
