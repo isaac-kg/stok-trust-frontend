@@ -10,6 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAppDispatch } from '@/store/hooks';
 import { setAuth } from '../auth-slice';
 import Link from 'next/link';
+import { toast } from 'sonner';
+
+interface ApiError {
+  data?: {
+    message?: string;
+  };
+  message?: string;
+}
 
 export function SignUpForm(): React.ReactElement {
   const router = useRouter();
@@ -33,7 +41,9 @@ export function SignUpForm(): React.ReactElement {
       router.push('/dashboard');
     } catch (error) {
       console.error('Sign up error:', error);
-      // Error handling can be improved with toast notifications
+      toast.error('Sign up failed', {
+        description: getErrorMessage(error, 'Could not create account. Please check your details and try again.'),
+      });
     }
   };
 
@@ -133,4 +143,9 @@ export function SignUpForm(): React.ReactElement {
       </CardContent>
     </Card>
   );
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  const apiError = error as ApiError;
+  return apiError?.data?.message || apiError?.message || fallback;
 }

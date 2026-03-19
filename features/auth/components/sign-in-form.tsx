@@ -10,7 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAppDispatch } from '@/store/hooks';
 import { setAuth } from '../auth-slice';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
+interface ApiError {
+  data?: {
+    message?: string;
+  };
+  message?: string;
+}
 export function SignInForm(): React.ReactElement {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -28,7 +35,9 @@ export function SignInForm(): React.ReactElement {
       router.push('/dashboard');
     } catch (error) {
       console.error('Sign in error:', error);
-      // Error handling can be improved with toast notifications
+      toast.error('Sign in failed', {
+        description: getErrorMessage(error, 'Invalid credentials. Please check your email and password.'),
+      });
     }
   };
 
@@ -112,4 +121,9 @@ export function SignInForm(): React.ReactElement {
       </CardContent>
     </Card>
   );
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  const apiError = error as ApiError;
+  return apiError?.data?.message || apiError?.message || fallback;
 }
