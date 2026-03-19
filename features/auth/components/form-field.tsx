@@ -1,6 +1,6 @@
 "use client";
 
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -13,7 +13,8 @@ interface FormFieldProps {
 
 export function FormField({ name, label, type = 'text', placeholder }: FormFieldProps): React.ReactElement {
   const [field, meta] = useField(name);
-  const hasError = meta.touched && meta.error;
+  const { submitCount } = useFormikContext();
+  const hasError = Boolean(meta.error) && (meta.touched || submitCount > 0);
 
   return (
     <div className="space-y-2">

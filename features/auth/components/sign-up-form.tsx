@@ -35,8 +35,14 @@ export function SignUpForm(): React.ReactElement {
 
   const handleSubmit = async (values: SignUpFormValues): Promise<void> => {
     try {
-      const { confirmPassword, ...rest } = values;
-      const result = await signUp({ ...rest, role: 'user' }).unwrap();
+      const result = await signUp({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        cellNumber: values.cellNumber,
+        password: values.password,
+        role: 'user',
+      }).unwrap();
       dispatch(setAuth(result));
       router.push('/dashboard');
     } catch (error) {
