@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function DashboardPage(): React.ReactElement {
   const user = useAppSelector((state) => state.auth.user);
+  console.log("User: ", user)
 
   return (
     <div className="p-6">
           <div className="mb-8">
             <h2 className="text-3xl font-bold mb-2">Dashboard</h2>
             <p className="text-muted-foreground">
-              Welcome back, {user?.firstName}! Manage your stock portfolio from here.
+              Welcome back, {user?.profile?.firstName}! Manage your stock portfolio from here.
             </p>
           </div>
 

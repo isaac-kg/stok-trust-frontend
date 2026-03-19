@@ -48,14 +48,14 @@ export function TopNavbar({ className }: TopNavbarProps): React.ReactElement {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 h-auto py-2 px-3">
                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
-                  {user?.firstName?.[0]?.toUpperCase() || user?.lastName?.[0]?.toUpperCase() || 'U'}
+                  {user?.profile?.firstName?.[0]?.toUpperCase() || user?.profile?.lastName?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div className="text-left hidden md:block">
                   <p className="text-sm font-medium leading-none">
-                    {user?.firstName} {user?.lastName}
+                    {user?.profile?.firstName} {user?.profile?.lastName}
                   </p>
                   <p className="text-xs text-muted-foreground leading-none mt-1">
-                    {user?.id || 'User'}
+                    {user?.profile?.idNumber || 'User'}
                   </p>
                 </div>
                 <svg className="h-4 w-4 text-muted-foreground hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -67,10 +67,10 @@ export function TopNavbar({ className }: TopNavbarProps): React.ReactElement {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user?.firstName} {user?.lastName}
+                    {user?.profile?.firstName} {user?.profile?.lastName}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.id || 'User'}
+                    {user?.profile?.idNumber || 'User'}
                   </p>
                 </div>
               </DropdownMenuLabel>
