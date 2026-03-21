@@ -29,7 +29,7 @@ export default function DashboardPage(): React.ReactElement {
   return (
     <div className="p-6">
       {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 lg:mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
             Welcome back, {user?.profile?.firstName} {user?.profile?.lastName}

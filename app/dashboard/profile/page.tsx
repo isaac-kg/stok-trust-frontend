@@ -25,7 +25,18 @@ export default function ProfilePage(): React.ReactElement {
   // const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const user = useAppSelector((state) => state.auth.user);
+  // const user = useAppSelector((state) => state.auth.user);
+  const user = {
+    profile: {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+      profilePhotoUrl: 'https://via.placeholder.com/150',
+    },
+    cellNumber: '0821234567',
+    idNumber: '123456789012',
+  };
+
   const isLoading = false;
   const memberships: any[] = [];
 
@@ -120,7 +131,7 @@ export default function ProfilePage(): React.ReactElement {
             </button>
           </div>
 
-          <div className="flex-1">
+          <div className="w-full sm:flex-1">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">{user?.profile?.firstName} {user?.profile?.lastName}</h2>
@@ -151,7 +162,7 @@ export default function ProfilePage(): React.ReactElement {
                     placeholder="0821234567"
                     value={formData?.phoneNumber}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className="mt-1"
+                    className="mt-1 sm:w-full"
                   />
                 </div>
                 <div>

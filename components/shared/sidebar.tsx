@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Shield } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -75,8 +76,18 @@ export function Sidebar({
       )}
     >
       {/* Logo Section */}
-      <div className="flex items-center justify-between border-b border-border px-6 py-6">
-        <h2 className="text-xl font-bold text-foreground">StokTrust</h2>
+      <div className="flex items-center justify-between border-b border-border px-6 py-5">
+        <div>
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+            <Shield className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <span className="font-bold text-lg text-slate-900">StokTrust</span>
+            <p className="text-[10px] text-slate-500 -mt-0.5">Trusted Stokvels</p>
+          </div>
+        </Link>
+      </div>
         <button
           type="button"
           onClick={onMobileClose}
