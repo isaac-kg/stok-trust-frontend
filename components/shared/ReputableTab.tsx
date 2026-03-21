@@ -20,9 +20,9 @@ export function getReputationLevel(score: number): string | undefined {
 
 interface ReputationBadgeProps {
   score: number;
-  level: string | undefined;
+  level?: string | undefined;
   size: 'sm' | 'md' | 'lg';
-  showScore: boolean;
+  showScore?: boolean;
 }
 
 export default function ReputationBadge({ score, level, size = 'md', showScore = true }: ReputationBadgeProps): React.ReactElement {
