@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  /* App canvas / surfaces — use `bg-main-color`, `text-main-color`, `border-main-color` */
+  --main-color: #f8fafc;
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
@@ -24,6 +26,7 @@
 }
 
 @theme inline {
+  --color-main-color: var(--main-color);
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));

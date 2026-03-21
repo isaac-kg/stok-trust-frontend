@@ -22,7 +22,7 @@ export default function GroupPage(): React.ReactElement {
 
 
       <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-        <div className="h-16 w-16 rounded-2xl bg-card flex items-center justify-center mb-4">
+        <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
           <Users className="h-8 w-8 text-slate-400" />
         </div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1">No stokvels yet</h3>

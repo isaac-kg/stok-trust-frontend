@@ -38,7 +38,7 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen bg-[#f5f5f5]">
+      <div className="flex min-h-screen bg-main-color">
         {isMobileNavOpen ? (
           <button
             type="button"
@@ -50,7 +50,7 @@ export default function DashboardLayout({
         <Sidebar isMobileOpen={isMobileNavOpen} onMobileClose={closeMobileNav} />
         <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
           <TopNavbar onMenuClick={openMobileNav} isMobileNavOpen={isMobileNavOpen} />
-          <main className="flex-1 overflow-y-auto bg-[#f5f5f5]">{children}</main>
+          <main className="flex-1 overflow-y-auto bg-main-color">{children}</main>
         </div>
       </div>
     </ProtectedRoute>

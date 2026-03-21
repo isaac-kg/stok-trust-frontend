@@ -18,7 +18,7 @@ export default function SignUpPage(): React.ReactElement {
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-[#f5f5f5] overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-main-color overflow-y-auto">
         <div className="w-full max-w-md py-8">
           <SignUpForm />
         </div>
