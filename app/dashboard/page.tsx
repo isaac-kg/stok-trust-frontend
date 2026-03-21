@@ -10,9 +10,13 @@ import {
   Vote,
 } from 'lucide-react';
 import ReputationBadge, { getReputationLevel } from '@/components/shared/ReputableTab';
+import { useState } from 'react';
+import FinancialAdvisor from '@/components/components/FinencialAdvisor';
+import BudgetCalculator from '@/components/components/BudgetCalculator';
 
 
 export default function DashboardPage(): React.ReactElement {
+  const [budgetData, setBudgetData] = useState<any>(null);
   const user = useAppSelector((state) => state.auth.user);
   console.log("User: ", user)
   const stats = {
@@ -70,32 +74,15 @@ export default function DashboardPage(): React.ReactElement {
         />
       </div>
 
-      {/* Main Content Area */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest stock transactions and updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No recent activity</p>
-              <p className="text-sm mt-2">Start by adding stocks to your portfolio</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Portfolio Overview</CardTitle>
-            <CardDescription>Summary of your stock holdings</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No holdings yet</p>
-              <p className="text-sm mt-2">Begin building your portfolio today</p>
-            </div>
-          </CardContent>
-        </Card>
+       {/* Budget & Financial Advisor */}
+       <div className="grid lg:grid-cols-2 gap-6">
+        <BudgetCalculator onCalculate={setBudgetData} />
+        <FinancialAdvisor 
+          budgetData={budgetData}
+          contributions={[]}
+          goals={[]}
+          memberships={[]}
+        />
       </div>
     </div>
   );
