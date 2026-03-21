@@ -88,8 +88,8 @@ export function SignInForm(): React.ReactElement {
           variant="outline"
           className="w-full"
           onClick={() => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
-            window.location.href = `${apiUrl}/auth/google/signin`;
+            // const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+            // window.location.href = `${apiUrl}/auth/google/signin`;
           }}
         >
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

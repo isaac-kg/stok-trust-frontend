@@ -1,6 +1,7 @@
 "use client";
 
-import { Icon, Plus, Users } from "lucide-react";
+import Link from "next/link";
+import { Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function GroupPage(): React.ReactElement {
@@ -14,9 +15,11 @@ export default function GroupPage(): React.ReactElement {
             Manage your stokvels and memberships
           </p>
         </div>
-        <Button variant="default">
-          <Plus className="h-4 w-4" />
-          Create Stokvel
+        <Button variant="default" asChild>
+          <Link href="/dashboard/create-stokvel">
+            <Plus className="h-4 w-4" />
+            Create Stokvel
+          </Link>
         </Button>
       </div>
 
@@ -27,7 +30,9 @@ export default function GroupPage(): React.ReactElement {
         </div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1">No stokvels yet</h3>
         <p className="text-sm text-slate-500 max-w-sm mb-4">Create your first stokvel or join an existing one to get started</p>
-        <Button>Create Stokvel</Button>
+        <Button asChild>
+          <Link href="/dashboard/create-stokvel">Create Stokvel</Link>
+        </Button>
       </div>
     </div>
   );
