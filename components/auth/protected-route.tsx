@@ -12,15 +12,17 @@ export function ProtectedRoute({ children }: ProtectedRouteProps): React.ReactEl
   const router = useRouter();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/signin');
-    }
-  }, [isAuthenticated, router]);
+  //TODO UNCOMMENT THIS WHEN THE NAVIGATION BAR IS CREATED.
+  
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push('/signin');
+  //   }
+  // }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  // if (!isAuthenticated) {
+  //   return null;
+  // }
 
   return <>{children}</>;
 }

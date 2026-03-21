@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/store/hooks';
 import { useAppDispatch } from '@/store/hooks';
 import { clearAuth } from '@/features/auth/auth-slice';
@@ -17,9 +17,17 @@ import {
 
 interface TopNavbarProps {
   className?: string;
+  /** Opens the mobile / tablet sidebar drawer (screens below `lg`). */
+  onMenuClick?: () => void;
+  /** Mirrors mobile drawer state for `aria-expanded` on the menu control. */
+  isMobileNavOpen?: boolean;
 }
 
-export function TopNavbar({ className }: TopNavbarProps): React.ReactElement {
+export function TopNavbar({
+  className,
+  onMenuClick,
+  isMobileNavOpen = false,
+}: TopNavbarProps): React.ReactElement {
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -30,11 +38,25 @@ export function TopNavbar({ className }: TopNavbarProps): React.ReactElement {
   };
 
   return (
-    <header className={`h-16 border-b bg-card sticky top-0 z-20 ${className || ''}`}>
-      <div className="h-full px-6 flex justify-end">
+    <header className={cn('sticky top-0 z-20 h-16 border-b bg-card', className)}>
+      <div className="flex h-full items-center gap-2 px-4 sm:px-6">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="shrink-0 lg:hidden"
+          aria-label="Open navigation menu"
+          aria-expanded={isMobileNavOpen}
+          onClick={onMenuClick}
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </Button>
+        <div className="min-w-0 flex-1 lg:hidden" />
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-2 sm:gap-4">
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

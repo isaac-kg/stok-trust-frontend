@@ -12,6 +12,10 @@ interface NavItem {
 
 interface SidebarProps {
   className?: string;
+  /** When false on viewports below `lg`, sidebar is off-canvas. */
+  isMobileOpen?: boolean;
+  /** Called when the mobile drawer should close (navigate, backdrop, Escape). */
+  onMobileClose?: () => void;
 }
 
 const navItems: NavItem[] = [
@@ -44,24 +48,47 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar({ className }: SidebarProps): React.ReactElement {
+export function Sidebar({
+  className,
+  isMobileOpen = false,
+  onMobileClose,
+}: SidebarProps): React.ReactElement {
   const pathname = usePathname();
 
   return (
-    <aside className={cn("w-64 bg-card border-r border-border h-screen fixed left-0 top-0 flex flex-col z-30", className)}>
+    <aside
+      className={cn(
+        'fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-border bg-card',
+        'transition-transform duration-200 ease-in-out',
+        '-translate-x-full lg:translate-x-0',
+        isMobileOpen && 'translate-x-0',
+        className
+      )}
+    >
       {/* Logo Section */}
-      <div className="px-6 py-6 border-b border-border">
+      <div className="flex items-center justify-between border-b border-border px-6 py-6">
         <h2 className="text-xl font-bold text-foreground">StokTrust</h2>
+        <button
+          type="button"
+          onClick={onMobileClose}
+          className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
+          aria-label="Close navigation menu"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onMobileClose?.()}
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-colors",
                 isActive
