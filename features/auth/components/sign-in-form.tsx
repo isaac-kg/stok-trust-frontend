@@ -42,7 +42,7 @@ export function SignInForm(): React.ReactElement {
   };
 
   return (
-    <Card className="w-full border-0 shadow-lg">
+    <Card className="w-full border-0 bg-card rounded-xl">
       <CardHeader className="space-y-1 pb-4">
         <CardTitle className="text-2xl font-semibold">Sign in to StokTrust</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>

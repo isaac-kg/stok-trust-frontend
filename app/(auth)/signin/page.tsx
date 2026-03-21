@@ -18,7 +18,7 @@ export default function SignInPage(): React.ReactElement {
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-background">
+      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-[#f5f5f5]">
         <div className="w-full max-w-md">
           <SignInForm />
         </div>
