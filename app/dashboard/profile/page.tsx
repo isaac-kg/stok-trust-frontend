@@ -24,18 +24,11 @@ import { useAppSelector } from '@/store/hooks';
 export default function ProfilePage(): React.ReactElement {
   // const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({});
-  // const user = useAppSelector((state) => state.auth.user);
-  const user = {
-    profile: {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      profilePhotoUrl: 'https://via.placeholder.com/150',
-    },
-    cellNumber: '0821234567',
-    idNumber: '123456789012',
-  };
+  const [formData, setFormData] = useState({
+    phoneNumber: '',
+    nationalIdNumber: '',
+  });
+  const user = useAppSelector((state) => state.auth.user);
 
   const isLoading = false;
   const memberships: any[] = [];
@@ -211,7 +204,7 @@ export default function ProfilePage(): React.ReactElement {
         <StatCard
           icon={Check}
           label="On-Time Rate"
-          value={`${onTimeRate}%`}
+          value={onTimeRate}
           iconBg="bg-purple-100"
           iconColor="text-purple-600"
         />

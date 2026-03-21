@@ -24,6 +24,7 @@ export interface AuthResponse {
       cellNumber?: string;
       idNumber?: string;
       passportNumber?: string;
+      profilePhotoUrl?: string;
     };
     verifications?: {
       email?: boolean;

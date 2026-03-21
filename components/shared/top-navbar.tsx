@@ -36,15 +36,8 @@ export function TopNavbar({
   onMenuClick,
   isMobileNavOpen = false,
 }: TopNavbarProps): React.ReactElement {
-  // const user = useAppSelector((state) => state.auth.user);\
-  const user = {
-    profile: {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      profilePhotoUrl: 'https://via.placeholder.com/150',
-    },
-  };
+  const user = useAppSelector((state) => state.auth.user);
+
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -92,7 +85,7 @@ export function TopNavbar({
             <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2 border-none">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profile?.profilePhotoUrl} />
+                <AvatarImage src={user?.profile?.profilePhotoUrl || ''} />
                 <AvatarFallback className="bg-emerald-100 text-emerald-700 text-sm">
                   {user?.profile?.firstName?.[0] || 'U'}
                 </AvatarFallback>

@@ -59,12 +59,12 @@ export default function BudgetCalculator({ compact = false, onCalculate }: Budge
 		(sum, val) => sum + (parseFloat(val) || 0),
 		0
 	);
-	const disposableIncome = parseFloat(income || 0) - totalExpenses;
+	const disposableIncome = income && parseFloat(income) > 0 ? parseFloat(income) - totalExpenses : 0;
 	const safeContribution = Math.max(0, disposableIncome * 0.3); // 30% of disposable income
 	const emergencyFund = disposableIncome * 0.2; // 20% for emergency fund
 	const maxSafeContribution = Math.max(0, disposableIncome * 0.5); // Maximum 50%
 
-	const expenseRatio = income > 0 ? (totalExpenses / parseFloat(income)) * 100 : 0;
+	const expenseRatio = income && parseFloat(income) > 0 ? (totalExpenses / parseFloat(income)) * 100 : 0;
 	const isHealthy = expenseRatio < 70;
 
 	if (compact) {
@@ -87,7 +87,7 @@ export default function BudgetCalculator({ compact = false, onCalculate }: Budge
 						/>
 					</div>
 
-					{calculated && income > 0 && (
+					{calculated && income && parseFloat(income) > 0 && (
 						<div className="pt-3 border-t space-y-2">
 							<div className="flex justify-between text-sm">
 								<span className="text-slate-600">Safe Contribution</span>
