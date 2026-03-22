@@ -283,13 +283,19 @@ export default function CreateStokvelPage(): React.ReactElement {
         </Card>
 
         <div className="flex gap-3 justify-end">
-          <Button
+          {/* <Button
             type="submit"
             variant="default"
 
           >
             Create & Set Up Constitution
-            <ArrowRight className="h-4 w-4 ml-2" />
+            <Link href={`/dashboard/constitution-builder/3333`}><ArrowRight className="h-4 w-4 ml-2" /></Link>
+          </Button> */}
+          <Button asChild>
+            <Link href={`/dashboard/constitution-builder/3333`}>
+              Create & Set Up Constitution
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
           </Button>
         </div>
       </form >
