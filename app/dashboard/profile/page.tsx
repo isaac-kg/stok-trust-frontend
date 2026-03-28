@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from 'react';
 import {
   Phone,
@@ -13,22 +14,22 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import ReputationBadge, { getReputationLevel } from '@/components/shared/ReputableTab';
 import StatCard from '@/components/shared/StatCard';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { ProfileEditForm } from '@/features/profile/components/profile-edit-form';
+import type { ProfileEditFormValues } from '@/features/profile/schemas/profile-edit.schema';
+import { useUpdateUserMutation } from '@/features/users/users-api';
+import { patchUserProfile } from '@/features/auth/auth-slice';
+import { toast } from 'sonner';
 
 export default function ProfilePage(): React.ReactElement {
-  // const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    phoneNumber: '',
-    nationalIdNumber: '',
-  });
   const user = useAppSelector((state) => state.auth.user);
+  const [updateUser] = useUpdateUserMutation();
 
   const isLoading = false;
   const memberships: any[] = [];
@@ -57,20 +58,42 @@ export default function ProfilePage(): React.ReactElement {
   //   },
   // });
 
-  const handleEdit = () => {
-    setFormData({
-      phoneNumber: user?.profile?.cellNumber || '',
-      nationalIdNumber: user?.profile?.idNumber || '',
-    });
-    setIsEditing(true);
-  };
+  function getProfileEditInitialValues(): ProfileEditFormValues {
+    return {
+      phoneNumber: user?.profile?.cellNumber ?? '',
+      nationalIdNumber: user?.profile?.idNumber ?? '',
+    };
+  }
 
-  const handleSave = () => {
-    // updateProfileMutation.mutate({
-    //   ...formData,
-    //   isProfileComplete: true,
-    // });
-  };
+  async function handleProfileSubmit(values: ProfileEditFormValues): Promise<void> {
+    const userId = user?._id;
+    if (!userId) {
+      toast.error('Cannot update profile', {
+        description: 'Your account is missing a user id. Please sign in again.',
+      });
+      return;
+    }
+
+    try {
+      await updateUser({
+        id: userId,
+        body: {
+          ...user,
+          profile: {
+            ...user?.profile,
+            cellNumber: values.phoneNumber,
+            idNumber: values.nationalIdNumber,
+          },
+        },
+      }).unwrap();
+      toast.success('Profile updated');
+      setIsEditing(false);
+    } catch {
+      toast.error('Update failed', {
+        description: 'Could not save your profile. Please try again.',
+      });
+    }
+  }
 
   if (isLoading) {
     //TODO: Create a loading spinner component.
@@ -143,42 +166,21 @@ export default function ProfilePage(): React.ReactElement {
                   <CreditCard className="h-4 w-4" />
                   {user?.profile?.idNumber ? '••••••••' + user?.profile?.idNumber?.slice(-4) : 'No ID number'}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleEdit} className="mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="mt-3"
+                >
                   Edit Profile
                 </Button>
               </div>
             ) : (
-              <div className="mt-4 space-y-4">
-                <div>
-                  <Label>Phone Number</Label>
-                  <Input
-                    placeholder="0821234567"
-                    value={formData?.phoneNumber}
-                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className="mt-1 sm:w-full"
-                  />
-                </div>
-                <div>
-                  <Label>National ID Number</Label>
-                  <Input
-                    placeholder="Enter your SA ID number"
-                    value={formData?.nationalIdNumber}
-                    onChange={(e) => setFormData({ ...formData, nationalIdNumber: e.target.value })}
-                    className="mt-1"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                  <Button
-                    onClick={handleSave}
-                    // disabled={updateProfileMutation.isPending}
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                  >
-                    {/* {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'} */}
-                    Save Changes
-                  </Button>
-                </div>
-              </div>
+              <ProfileEditForm
+                initialValues={getProfileEditInitialValues()}
+                onCancel={() => setIsEditing(false)}
+                onSubmit={handleProfileSubmit}
+              />
             )}
           </div>
         </div>
