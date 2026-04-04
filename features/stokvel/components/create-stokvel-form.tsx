@@ -32,6 +32,9 @@ import {
   createStokvelSchema,
   type CreateStokvelFormValues,
 } from "../schemas/create-stokvel.schema";
+import { useCreateStokvelMutation } from "../stokvel-api";
+import { mapFormValuesToCreateStokvelRequest } from "../map-create-stokvel-request";
+import { toast } from "sonner";
 
 const groupTypes = [
   {
@@ -187,11 +190,22 @@ function ContributionAmountField(): React.ReactElement {
 
 export function CreateStokvelForm(): React.ReactElement {
   const router = useRouter();
+  const [createStokvel] = useCreateStokvelMutation();
 
-  function handleSubmit(_values: CreateStokvelFormValues): void {
-    console.log("Values: ", _values);
-    return;
-    router.push("/dashboard/constitution-builder/3333");
+  async function handleSubmit(values: CreateStokvelFormValues): Promise<void> {
+    const body = mapFormValuesToCreateStokvelRequest(values);
+    try {
+      const result = await createStokvel(body).unwrap();
+      console.log("Result: ", result);
+      toast.success("Stokvel created");
+      return;
+      const nextId = result.id?.trim() ? result.id : "new";
+      router.push(`/dashboard/constitution-builder/${encodeURIComponent(nextId)}`);
+    } catch {
+      toast.error("Could not create stokvel", {
+        description: "Check your details and try again.",
+      });
+    }
   }
 
   return (
@@ -200,7 +214,7 @@ export function CreateStokvelForm(): React.ReactElement {
       validationSchema={createStokvelSchema}
       validateOnBlur={true}
       validateOnChange={false}
-      onSubmit={(values) => handleSubmit(values)}
+      onSubmit={handleSubmit}
     >
       {({ values, setFieldValue, isSubmitting }) => (
         <Form className="space-y-6">
