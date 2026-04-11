@@ -11,36 +11,22 @@ import { Card } from "@/components/ui/card";
 import ReputationBadge from "@/components/shared/ReputableTab";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/shared/StatusBadge";
-
-const HARDCODED_MEMBERSHIPS = [
-  {
-    id: 1,
-    groupName: "Stokvel 1",
-    groupId: "1",
-    status: "active",
-    role: "Admin",
-    reputationInGroup: 100,
-    memberCount: 10,
-    locationDescription: "Location 1",
-    type: "Savings",
-  },
-  {
-    id: 2,
-    groupName: "Stokvel 2",
-    groupId: "2",
-    status: "active",
-    role: "Admin",
-    reputationInGroup: 100,
-  },
-];
+import { useGetStokvelsQuery } from "@/features/stokvel/stokvel-api";
+import { Stokvel } from "@/features/stokvel/model/types";
 
 export default function GroupPage(): React.ReactElement {
 
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [filteredMemberships, setFilteredMemberships] = useState(HARDCODED_MEMBERSHIPS);
+  
+  const { data: stokvels, isLoading: isLoadingStokvels, error: errorStokvels } = useGetStokvelsQuery({ search: searchTerm, filters: { role: roleFilter } });
+
+  if (isLoadingStokvels) return <div>Loading...</div>;
+  if (errorStokvels) return <div>Error: {errorStokvels.message}</div>;
 
 
+  //HANDLE ERROR AND LOADING
   return (
     <div className="p-6">
       {/* Header */}
@@ -86,7 +72,7 @@ export default function GroupPage(): React.ReactElement {
       </div>
 
 
-      {filteredMemberships.length === 0 ? (
+      {stokvels?.data?.length === 0 ? (
         <EmptyState
           icon={<Users className="h-8 w-8 text-slate-400" />}
           title={searchTerm || roleFilter !== 'all' ? "No matching stokvels" : "No stokvels yet"}
@@ -98,45 +84,45 @@ export default function GroupPage(): React.ReactElement {
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-          {filteredMemberships.map((membership) => {
+          {stokvels?.data?.map((stokvel: Stokvel) => {
             return (
               <Link
-                key={membership.id}
-                href={`/dashboard/group/${membership.groupId}`}
+                key={stokvel._id}
+                href={`/dashboard/group/${stokvel._id}`}
               >
                 <Card className="p-5 hover:shadow-md transition-all hover:border-emerald-200 group">
                   <div className="flex items-start justify-between mb-4">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg">
-                      {membership.groupName?.[0] || 'S'}
+                      {stokvel.name?.[0] || 'S'}
                     </div>
-                    <StatusBadge status={membership.status} />
+                    <StatusBadge status={stokvel.isActive ? 'active' : 'inactive'} />
                   </div>
 
                   <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-emerald-700 transition-colors">
-                    {membership.groupName}
+                    {stokvel.name}
                   </h3>
 
                   <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-                    <span className="px-2 py-0.5 bg-slate-100 rounded-full">{membership.type || 'Savings'}</span>
+                    <span className="px-2 py-0.5 bg-slate-100 rounded-full">{stokvel.type || 'Savings'}</span>
                     <span>•</span>
-                    <span>{membership.role}</span>
+                    <span>{stokvel.membershipRole || 'Member'}</span>
                   </div>
 
-                  {membership.locationDescription && (
+                  {stokvel.location && (
                     <p className="text-xs text-slate-500 flex items-center gap-1 mb-2">
                       <MapPin className="h-3 w-3" />
-                      {membership.locationDescription}
+                      {stokvel.location}
                     </p>
                   )}
 
                   <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                     <ReputationBadge
-                      score={membership.reputationInGroup}
+                      score={stokvel.reputation}
                       size="sm"
                     />
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Users className="h-3 w-3" />
-                      {membership.memberCount || 1}
+                      {stokvel.memberCount || 1}
                     </div>
                   </div>
                 </Card>

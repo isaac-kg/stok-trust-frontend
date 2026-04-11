@@ -19,6 +19,8 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useUpdateStokvelByIdMutation } from './stokvel-api';
+import { toast } from 'sonner';
 
 const steps = [
   { id: 1, title: 'Purpose', icon: FileText, field: 'groupPurpose' },
@@ -81,8 +83,6 @@ const defaultTemplates = {
 };
 
 export default function ConstitutionBuilder({ id }: { id: string }) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const groupId = urlParams.get('groupId');
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -98,6 +98,20 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
 
   const currentStepData = steps[currentStep - 1];
   const progress = (currentStep / steps.length) * 100;
+
+  const [updateStokvelById] = useUpdateStokvelByIdMutation();
+
+
+  const handleNext = async () => {
+  
+    const result = await updateStokvelById({ id, body: {constitution: formData} });
+   
+    if (result?.error) {
+      toast.error("Failed to update stokvel");
+    } else {
+      setCurrentStep(currentStep + 1);
+    }
+  }
 
   
 
@@ -193,7 +207,13 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
         
         {currentStep < steps.length ? (
           <Button
-            onClick={() => setCurrentStep(currentStep + 1)}
+            onClick={() => 
+              // console.log("Next button clicked", formData?.groupPurpose)
+               handleNext()
+
+              // setCurrentStep(currentStep + 1)
+              
+            }
             className="flex-1 bg-emerald-600 hover:bg-emerald-700"
           >
             Next
@@ -209,5 +229,5 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
         )}
       </div>
     </div>
-  );
+  ); 
 }

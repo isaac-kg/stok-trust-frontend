@@ -196,14 +196,18 @@ export function CreateStokvelForm(): React.ReactElement {
     const body = mapFormValuesToCreateStokvelRequest(values);
     try {
       const result = await createStokvel(body).unwrap();
-      console.log("Result: ", result);
       toast.success("Stokvel created");
-      return;
-      const nextId = result.id?.trim() ? result.id : "new";
-      router.push(`/dashboard/constitution-builder/${encodeURIComponent(nextId)}`);
+      const nextId = result._id;
+      if(nextId) {
+        router.push(`/dashboard/constitution-builder/${encodeURIComponent(nextId)}`);
+      } else {
+        toast.error("Could not create stokvel", {
+          description: "Check your details an try again.",
+        });
+      }
     } catch {
       toast.error("Could not create stokvel", {
-        description: "Check your details and try again.",
+        description: "Check your details an try again.",
       });
     }
   }

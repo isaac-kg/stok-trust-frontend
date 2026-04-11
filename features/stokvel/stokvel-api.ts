@@ -15,7 +15,34 @@ export const stokvelApi = createApi({
       }),
       invalidatesTags: ['Stokvel'],
     }),
+    //get all stokvels BASED ON SEARCH AND FILTERS
+    getStokvels: builder.query({
+      query: ({ search, filters }: { search: string, filters: Record<string, string> }) => ({
+        url: '/stokvels',
+        method: 'GET',
+        params: {
+          search,
+          filters,
+        },
+      }),
+    }),
+    //get stokvel by id
+    getStokvelById: builder.query({
+      query: (id) => ({
+        url: `/stokvels/${id}`,
+        method: 'GET',
+      }),
+    }),
+    //update stokvel by id
+    updateStokvelById: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/stokvels/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Stokvel'],
+    }),
   }),
 });
 
-export const { useCreateStokvelMutation } = stokvelApi;
+export const { useCreateStokvelMutation, useGetStokvelsQuery, useGetStokvelByIdQuery, useUpdateStokvelByIdMutation } = stokvelApi;
