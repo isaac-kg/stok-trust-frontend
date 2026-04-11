@@ -75,6 +75,8 @@ export function SignInForm(): React.ReactElement {
             </Form>
           )}
         </Formik>
+        {/*
+        // TODO: Add Google sign in
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -112,6 +114,7 @@ export function SignInForm(): React.ReactElement {
           </svg>
           Sign in with Google
         </Button>
+        */}
         <div className="mt-4 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-primary hover:underline">

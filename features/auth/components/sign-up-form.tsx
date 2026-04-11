@@ -103,6 +103,9 @@ export function SignUpForm(): React.ReactElement {
             </Form>
           )}
         </Formik>
+
+        {/*
+        // TODO: Add Google sign up
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -111,7 +114,8 @@ export function SignUpForm(): React.ReactElement {
             <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
           </div>
         </div>
-        <Button
+       
+         <Button
           type="button"
           variant="outline"
           className="w-full"
@@ -139,7 +143,7 @@ export function SignUpForm(): React.ReactElement {
             />
           </svg>
           Sign up with Google
-        </Button>
+        </Button> */}
         <div className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link href="/signin" className="text-primary hover:underline">
