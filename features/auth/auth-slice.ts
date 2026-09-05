@@ -24,8 +24,16 @@ export const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
     },
+    patchUserProfile: (
+      state,
+      action: PayloadAction<Partial<NonNullable<AuthResponse['user']>['profile']>>,
+    ) => {
+      if (state.user?.profile) {
+        state.user.profile = { ...state.user.profile, ...action.payload };
+      }
+    },
   },
 });
 
-export const { setAuth, clearAuth } = authSlice.actions;
+export const { setAuth, clearAuth, patchUserProfile } = authSlice.actions;
 export const authReducer = authSlice.reducer;

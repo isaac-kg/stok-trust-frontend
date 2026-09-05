@@ -2,6 +2,8 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import { authApi } from '@/features/auth/auth-api';
 import { authSlice } from '@/features/auth/auth-slice';
+import { usersApi } from '@/features/users/users-api';
+import { stokvelApi } from '@/features/stokvel/stokvel-api';
 
 function createNoopStorage() {
   return {
@@ -25,6 +27,8 @@ const persistedAuthReducer = persistReducer(authPersistConfig, authSlice.reducer
 
 const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
+  [usersApi.reducerPath]: usersApi.reducer,
+  [stokvelApi.reducerPath]: stokvelApi.reducer,
   auth: persistedAuthReducer,
 });
 
@@ -35,7 +39,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
-    }).concat(authApi.middleware),
+    }).concat(authApi.middleware, usersApi.middleware, stokvelApi.middleware),
 });
 
 export const persistor = persistStore(store);

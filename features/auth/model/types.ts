@@ -14,6 +14,7 @@ export interface SignInRequest {
 
 export interface AuthResponse {
   user: {
+    _id?: string;
     services?: {
       password?: string;
     };
