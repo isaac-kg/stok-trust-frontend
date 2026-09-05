@@ -87,7 +87,7 @@ export function SignUpForm(): React.ReactElement {
               />
               <FormField
                 name="password"
-          A      label="Password"
+                label="Password"
                 type="password"
                 placeholder="Enter your password"
               />

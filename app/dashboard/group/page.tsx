@@ -23,7 +23,13 @@ export default function GroupPage(): React.ReactElement {
   const { data: stokvels, isLoading: isLoadingStokvels, error: errorStokvels } = useGetStokvelsQuery({ search: searchTerm, filters: { role: roleFilter } });
 
   if (isLoadingStokvels) return <div>Loading...</div>;
-  if (errorStokvels) return <div>Error: {errorStokvels.message}</div>;
+  if (errorStokvels) {
+    const message =
+      'status' in errorStokvels
+        ? `Request failed (${errorStokvels.status})`
+        : errorStokvels.message ?? 'Something went wrong';
+    return <div>Error: {message}</div>;
+  }
 
 
   //HANDLE ERROR AND LOADING
@@ -117,7 +123,7 @@ export default function GroupPage(): React.ReactElement {
 
                   <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                     <ReputationBadge
-                      score={stokvel.reputation}
+                      score={stokvel.reputation ?? 0}
                       size="sm"
                     />
                     <div className="flex items-center gap-1 text-xs text-slate-400">

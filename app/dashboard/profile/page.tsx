@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { ProfileEditForm } from '@/features/profile/components/profile-edit-form';
 import type { ProfileEditFormValues } from '@/features/profile/schemas/profile-edit.schema';
 import { useUpdateUserMutation } from '@/features/users/users-api';
-import { patchUserProfile, setAuth } from '@/features/auth/auth-slice';
+import { patchUserProfile } from '@/features/auth/auth-slice';
 import { toast } from 'sonner';
 
 export default function ProfilePage(): React.ReactElement {
@@ -78,27 +78,15 @@ export default function ProfilePage(): React.ReactElement {
       await updateUser({
         id: userId,
         body: {
-          ...user,
-          profile: {
-            ...user?.profile,
-            cellNumber: values.phoneNumber,
-            idNumber: values.nationalIdNumber,
-          },
+          cellNumber: values.phoneNumber ?? '',
+          idNumber: values.nationalIdNumber ?? '',
         },
       }).unwrap();
       toast.success('Profile updated');
-      dispatch(setAuth({
-        accessToken: user?.accessToken,
-        refreshToken: user?.refreshToken,
-        user: {
-          ...user,
-          profile: {
-              ...user?.profile,
-              cellNumber: values.phoneNumber,
-              idNumber: values.nationalIdNumber,
-            },
-          },
-        }));
+      dispatch(patchUserProfile({
+        cellNumber: values.phoneNumber,
+        idNumber: values.nationalIdNumber,
+      }));
       setIsEditing(false);
     } catch {
       toast.error('Update failed', {
