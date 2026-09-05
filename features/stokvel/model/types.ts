@@ -9,21 +9,29 @@ export interface CreateStokvelRequest {
 }
 
 
-//SHIBA TODO
 /* 
-API TODO GET /stokvels
-Update api example for filtering and searching usage.
-update get all stokvels response to include the following
-- memberCount // number of members in the stokvel
-- reputation // reputation of the stokvel as a number 
-- membershipRole // weather user is admin, member or pending or other
-
+  API TODO GET /stokvels
+  Update swagger doc with example for filtering and searching usage.
+  update get all stokvels response to include the following
+  - memberCount // number of members in the stokvel
+  - reputation // reputation of the stokvel as a number 
+  - membershipRole // weather user is admin, member or pending or other
 */
 
   /*
-  API TODO PUT/PATCH  /stokvels/:id
-  Update to allow the following on stokvels a part of undate
+    API TODO PUT/PATCH  /stokvels/:id
+    Update to allow the following fields to be updated on stokvels a part of update request
 
+    // constitution object with the following fields:
+    constitution: {
+      - groupPurpose : string
+      - membershipRules : string
+      - contributionRules : string
+      - payoutRules : string
+      - meetingRules : string
+      - disputeRules : string
+      - amendmentRules : string
+    }
   */
 
 

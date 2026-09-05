@@ -193,12 +193,12 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
       </Card>
 
       {/* Navigation */}
-      <div className="flex gap-3">
+      <div className="flex flex-col md:flex-row justify-end gap-3">
         {currentStep > 1 && (
           <Button
             variant="outline"
             onClick={() => setCurrentStep(currentStep - 1)}
-            className="flex-1"
+            className="w-full md:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
@@ -214,14 +214,14 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
               // setCurrentStep(currentStep + 1)
               
             }
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
           >
             Next
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         ) : (
           <Button
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
           >
             Save & Submit for Approval
             <Check className="h-4 w-4 ml-2" />
