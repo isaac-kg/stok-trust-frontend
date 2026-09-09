@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useCreateStokvelConstitutionMutation } from './stokvel-api';
 
 const steps = [
   { id: 1, title: 'Purpose', icon: FileText, field: 'groupPurpose' },
@@ -83,6 +84,7 @@ const defaultTemplates = {
 export default function ConstitutionBuilder({ id }: { id: string }) {
   const urlParams = new URLSearchParams(window.location.search);
   const groupId = urlParams.get('groupId');
+  const [createStokvelConstitution, { isLoading }] = useCreateStokvelConstitutionMutation();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -99,7 +101,12 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
   const currentStepData = steps[currentStep - 1];
   const progress = (currentStep / steps.length) * 100;
 
-  
+  const handleSubmit = () => {
+    createStokvelConstitution({
+      ...formData,
+      stokvelId: groupId ?? ""
+    });
+  };
 
   return (
     <div className="p-6">
@@ -201,6 +208,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
           </Button>
         ) : (
           <Button
+            onClick={handleSubmit}
             className="flex-1 bg-emerald-600 hover:bg-emerald-700"
           >
             Save & Submit for Approval

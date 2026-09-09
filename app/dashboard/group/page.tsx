@@ -5,12 +5,13 @@ import { Filter, MapPin, Plus, Search, Users } from "lucide-react";
 import JoinBanner from "@/components/components/JoinBanner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EmptyState from "@/components/components/EmptyState";
 import { Card } from "@/components/ui/card";
 import ReputationBadge from "@/components/shared/ReputableTab";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/shared/StatusBadge";
+import { useFetchUserStokvelsQuery } from "@/features/stokvel/stokvel-api";
 
 const HARDCODED_MEMBERSHIPS = [
   {
@@ -38,8 +39,32 @@ export default function GroupPage(): React.ReactElement {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [filteredMemberships, setFilteredMemberships] = useState(HARDCODED_MEMBERSHIPS);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  // const [filteredMemberships, setFilteredMemberships] = useState(HARDCODED_MEMBERSHIPS);
+    const {
+    data,
+    isLoading: loading,
+    isFetching,
+    refetch
+  } = useFetchUserStokvelsQuery(
+    {
+      searchTerm,
+      roleFilter,
+      page,
+      size
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      // pollingInterval: 120_000, // 2 minutes
+      refetchOnFocus: true,
+      refetchOnReconnect: true
+    }
+  );
 
+  const { data: filteredMemberships } = data || { data: [] };
+
+  console.log("filteredMemberships =>", filteredMemberships);
 
   return (
     <div className="p-6">
@@ -86,7 +111,7 @@ export default function GroupPage(): React.ReactElement {
       </div>
 
 
-      {filteredMemberships.length === 0 ? (
+      {filteredMemberships?.length === 0 ? (
         <EmptyState
           icon={<Users className="h-8 w-8 text-slate-400" />}
           title={searchTerm || roleFilter !== 'all' ? "No matching stokvels" : "No stokvels yet"}
@@ -98,22 +123,22 @@ export default function GroupPage(): React.ReactElement {
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-          {filteredMemberships.map((membership) => {
+          {filteredMemberships?.map((membership) => {
             return (
               <Link
-                key={membership.id}
-                href={`/dashboard/group/${membership.groupId}`}
+                key={membership._id}
+                href={`/dashboard/group/${membership._id}`}
               >
                 <Card className="p-5 hover:shadow-md transition-all hover:border-emerald-200 group">
                   <div className="flex items-start justify-between mb-4">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg">
-                      {membership.groupName?.[0] || 'S'}
+                      {membership.name?.[0] || 'S'}
                     </div>
                     <StatusBadge status={membership.status} />
                   </div>
 
                   <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-emerald-700 transition-colors">
-                    {membership.groupName}
+                    {membership.name}
                   </h3>
 
                   <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
@@ -122,10 +147,10 @@ export default function GroupPage(): React.ReactElement {
                     <span>{membership.role}</span>
                   </div>
 
-                  {membership.locationDescription && (
+                  {membership.description && (
                     <p className="text-xs text-slate-500 flex items-center gap-1 mb-2">
                       <MapPin className="h-3 w-3" />
-                      {membership.locationDescription}
+                      {membership.description}
                     </p>
                   )}
 
