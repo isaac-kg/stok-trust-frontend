@@ -8,61 +8,93 @@ export interface CreateStokvelRequest {
   nasasaRegistrationNumber?: string;
 }
 
-
-/* 
-  API TODO GET /stokvels
-  Update swagger doc with example for filtering and searching usage.
-  update get all stokvels response to include the following
-  - memberCount // number of members in the stokvel
-  - reputation // reputation of the stokvel as a number 
-  - membershipRole // weather user is admin, member or pending or other
-*/
-
-  /*
-    API TODO PUT/PATCH  /stokvels/:id
-    Update to allow the following fields to be updated on stokvels a part of update request
-
-    // constitution object with the following fields:
-    constitution: {
-      - groupPurpose : string
-      - membershipRules : string
-      - contributionRules : string
-      - payoutRules : string
-      - meetingRules : string
-      - disputeRules : string
-      - amendmentRules : string
-    }
-  */
-
+export interface FetchStokvelsResponse {
+  data: Stokvel[];
+  meta?: {
+    currentPage?: number;
+    totalPages?: number;
+    totalItems?: number;
+  }
+}
 
 export interface Stokvel {
   _id?: string;
   name?: string;
-  type?: string;
   description?: string;
   location?: string;
+  type?: string;
   monthlyContribution?: number;
+  adminIds?: string[];
   nasasaRegistrationNumber?: string;
-  isActive?: boolean;
+  inviteCode?: string;
   createdBy?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  __v?: number;
-  memberCount?: number; //number of members in the stokvel
-  reputation?: number;
-  membershipRole?: 'admin' | 'member' | 'pending'; //other roles can be added later
-  constitution?: {
-    groupPurpose?: string;
-    membershipRules?: string;
-    contributionRules?: string;
-    payoutRules?: string;
-    meetingRules?: string;
-    disputeRules?: string;
-    amendmentRules?: string;
-  };
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
+export interface StokvelConstitutionRequest {
+  purpose: string;
+  membershipRules: string;
+  contributionRules: string;
+  payoutRules: string;
+  meetingRules: string;
+  disputeRules: string;
+  constitutionAmendmentRules: string;
+  stokvelId: string;
+}
 
-export interface CreateStokvelResponse extends Stokvel {
+export interface StokvelConstitution extends StokvelConstitutionRequest {
+  _id?: string;
+  version?: number;
+  createdBy?: string;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date; 
+}
 
+export interface StokvelMember {
+  _id?: string;
+  userId?: string;
+  stokvelId?: string;
+  role?: 'administrator' | 'member';
+  userDetails?: {
+    profile: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      cellNumber: string;
+    }
+  }
+}
+
+export interface GetStokvelByIdResponse {
+  members: number;
+  totalContributions: number;
+  totalPolicies: number;
+  totalPayouts: number;
+  totalDisputes: number;
+  totalMeetings: number;
+  totalAmendments: number;
+  stokvel: Stokvel
+}
+
+export interface StokvelInviteResponse {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cellNumber: string;
+  inviteCode: string;
+  stokvelId: string;
+  inviteAccepted: boolean;
+  userId: string | null;
+}
+
+export interface CreateStokvelInviteRequest {
+  stokvelId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cellNumber: string;
 }
