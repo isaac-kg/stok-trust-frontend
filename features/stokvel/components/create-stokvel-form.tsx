@@ -199,7 +199,7 @@ export function CreateStokvelForm(): React.ReactElement {
       toast.success("Stokvel created");
       const nextId = result._id;
       if(nextId) {
-        router.push(`/dashboard/constitution-builder/${encodeURIComponent(nextId)}`);
+        router.push(`/dashboard/constitution-builder/${nextId}`);
       } else {
         toast.error("Could not create stokvel", {
           description: "Check your details an try again.",

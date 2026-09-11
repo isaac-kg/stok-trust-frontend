@@ -11,24 +11,49 @@ import { Card } from "@/components/ui/card";
 import ReputationBadge from "@/components/shared/ReputableTab";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/shared/StatusBadge";
-import { useGetStokvelsQuery } from "@/features/stokvel/stokvel-api";
+import { useFetchUserStokvelsQuery } from "@/features/stokvel/stokvel-api";
 import { Stokvel } from "@/features/stokvel/model/types";
+import { useAppSelector } from "@/store/hooks";
+import Loader from "@/components/shared/loader";
+import ErrorState from "@/components/shared/error-state";
 
 export default function GroupPage(): React.ReactElement {
 
-  
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  
-  const { data: stokvels, isLoading: isLoadingStokvels, error: errorStokvels } = useGetStokvelsQuery({ search: searchTerm, filters: { role: roleFilter } });
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+    const {
+    data,
+    isLoading: isLoadingStokvels,
+    error: errorStokvels,
+    isFetching,
+    refetch
+  } = useFetchUserStokvelsQuery(
+    {
+      searchTerm,
+      roleFilter,
+      page,
+      size
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      // pollingInterval: 120_000, // 2 minutes
+      refetchOnFocus: true,
+      refetchOnReconnect: true
+    }
+  );
+  const user = useAppSelector((state) => state.auth.user);
 
-  if (isLoadingStokvels) return <div>Loading...</div>;
+  const { data: stokvels } = data || { data: [] };
+
+  if (isLoadingStokvels) return <Loader message="Loading groups..." />;
   if (errorStokvels) {
     const message =
       'status' in errorStokvels
         ? `Request failed (${errorStokvels.status})`
         : errorStokvels.message ?? 'Something went wrong';
-    return <div>Error: {message}</div>;
+    return <ErrorState message={message} />;
   }
 
 
@@ -78,7 +103,7 @@ export default function GroupPage(): React.ReactElement {
       </div>
 
 
-      {stokvels?.data?.length === 0 ? (
+      {stokvels?.length === 0 ? (
         <EmptyState
           icon={<Users className="h-8 w-8 text-slate-400" />}
           title={searchTerm || roleFilter !== 'all' ? "No matching stokvels" : "No stokvels yet"}
@@ -90,7 +115,7 @@ export default function GroupPage(): React.ReactElement {
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-          {stokvels?.data?.map((stokvel: Stokvel) => {
+          {stokvels?.map((stokvel: Stokvel) => {
             return (
               <Link
                 key={stokvel._id}
@@ -99,7 +124,7 @@ export default function GroupPage(): React.ReactElement {
                 <Card className="p-5 hover:shadow-md transition-all hover:border-emerald-200 group">
                   <div className="flex items-start justify-between mb-4">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg">
-                      {stokvel.name?.[0] || 'S'}
+                      {stokvel.name?.[0]?.toUpperCase() || 'S'}
                     </div>
                     <StatusBadge status={stokvel.isActive ? 'active' : 'inactive'} />
                   </div>
@@ -111,7 +136,7 @@ export default function GroupPage(): React.ReactElement {
                   <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                     <span className="px-2 py-0.5 bg-slate-100 rounded-full">{stokvel.type || 'Savings'}</span>
                     <span>•</span>
-                    <span>{stokvel.membershipRole || 'Member'}</span>
+                    <span>{stokvel?.adminIds?.includes(user?._id ?? "") ? 'Admin' : 'Member'}</span>
                   </div>
 
                   {stokvel.location && (
@@ -123,12 +148,12 @@ export default function GroupPage(): React.ReactElement {
 
                   <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                     <ReputationBadge
-                      score={stokvel.reputation ?? 0}
+                      score={stokvel?.reputation ?? 0}
                       size="sm"
                     />
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Users className="h-3 w-3" />
-                      {stokvel.memberCount || 1}
+                      {stokvel?.memberCount || 10}
                     </div>
                   </div>
                 </Card>

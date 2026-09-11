@@ -9,7 +9,6 @@ import {
   Wallet,
   Calendar,
   AlertTriangle,
-  Scale,
   Edit
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -19,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useUpdateStokvelByIdMutation } from './stokvel-api';
+import { useCreateStokvelConstitutionMutation } from './stokvel-api';
 import { toast } from 'sonner';
 
 const steps = [
@@ -83,6 +82,9 @@ const defaultTemplates = {
 };
 
 export default function ConstitutionBuilder({ id }: { id: string }) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const groupId = urlParams.get('groupId');
+  const [createStokvelConstitution, { isLoading }] = useCreateStokvelConstitutionMutation();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -99,21 +101,23 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
   const currentStepData = steps[currentStep - 1];
   const progress = (currentStep / steps.length) * 100;
 
-  const [updateStokvelById] = useUpdateStokvelByIdMutation();
-
-
-  const handleNext = async () => {
-  
-    const result = await updateStokvelById({ id, body: {constitution: formData} });
-   
-    if (result?.error) {
-      toast.error("Failed to update stokvel");
-    } else {
-      setCurrentStep(currentStep + 1);
+  async function handleSubmit(): Promise<void> {
+    try {
+      await createStokvelConstitution({
+        ...formData,
+        stokvelId: groupId ?? id ?? "",
+        purpose: formData.groupPurpose,
+        constitutionAmendmentRules: formData.amendmentRules,
+      }).unwrap();
+      toast.success('Constitution saved', {
+        description: 'Your constitution was submitted for approval.',
+      });
+    } catch {
+      toast.error('Failed to save constitution', {
+        description: 'Please try again.',
+      });
     }
   }
-
-  
 
   return (
     <div className="p-6">
@@ -193,12 +197,12 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
       </Card>
 
       {/* Navigation */}
-      <div className="flex flex-col md:flex-row justify-end gap-3">
+      <div className="flex gap-3">
         {currentStep > 1 && (
           <Button
             variant="outline"
             onClick={() => setCurrentStep(currentStep - 1)}
-            className="w-full md:w-auto"
+            className="flex-1"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
@@ -207,27 +211,24 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
         
         {currentStep < steps.length ? (
           <Button
-            onClick={() => 
-              // console.log("Next button clicked", formData?.groupPurpose)
-               handleNext()
-
-              // setCurrentStep(currentStep + 1)
-              
-            }
-            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
+            onClick={() => setCurrentStep(currentStep + 1)}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            disabled={isLoading}
           >
             Next
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         ) : (
           <Button
-            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
+            onClick={handleSubmit}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            disabled={isLoading}
           >
-            Save & Submit for Approval
+            {isLoading ? 'Saving...' : 'Save & Submit for Approval'}
             <Check className="h-4 w-4 ml-2" />
           </Button>
         )}
       </div>
     </div>
-  ); 
+  );
 }
