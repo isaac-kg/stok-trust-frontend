@@ -19,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useCreateStokvelConstitutionMutation } from './stokvel-api';
+import { toast } from 'sonner';
 
 const steps = [
   { id: 1, title: 'Purpose', icon: FileText, field: 'groupPurpose' },
@@ -100,14 +101,23 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
   const currentStepData = steps[currentStep - 1];
   const progress = (currentStep / steps.length) * 100;
 
-  const handleSubmit = () => {
-    createStokvelConstitution({
-      ...formData,
-      stokvelId: groupId ?? id ?? "",
-      purpose: formData.groupPurpose,
-      constitutionAmendmentRules: formData.amendmentRules
-    });
-  };
+  async function handleSubmit(): Promise<void> {
+    try {
+      await createStokvelConstitution({
+        ...formData,
+        stokvelId: groupId ?? id ?? "",
+        purpose: formData.groupPurpose,
+        constitutionAmendmentRules: formData.amendmentRules,
+      }).unwrap();
+      toast.success('Constitution saved', {
+        description: 'Your constitution was submitted for approval.',
+      });
+    } catch {
+      toast.error('Failed to save constitution', {
+        description: 'Please try again.',
+      });
+    }
+  }
 
   return (
     <div className="p-6">
@@ -203,6 +213,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
           <Button
             onClick={() => setCurrentStep(currentStep + 1)}
             className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            disabled={isLoading}
           >
             Next
             <ArrowRight className="h-4 w-4 ml-2" />
@@ -211,8 +222,9 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
           <Button
             onClick={handleSubmit}
             className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            disabled={isLoading}
           >
-            Save & Submit for Approval
+            {isLoading ? 'Saving...' : 'Save & Submit for Approval'}
             <Check className="h-4 w-4 ml-2" />
           </Button>
         )}
