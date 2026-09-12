@@ -38,7 +38,6 @@ export default function StokvelOverview({
   const {
     data,
     isLoading: isLoadingStokvel,
-    error: errorStokvel,
   } = useGetStokvelByIdQuery({ id: id ?? "" });
 
 
@@ -48,12 +47,11 @@ export default function StokvelOverview({
   const handleDownload = async () => {
     try {
       // ✅ args passed here
-      console.log("id =>", id);
       const blob = await download({ stokvelId: id ?? "" }).unwrap();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = (blob as any)._filename ?? "constitution.pdf";
+      a.download = (blob as never)._filename ?? "constitution.pdf";
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -72,10 +70,6 @@ export default function StokvelOverview({
     members,
     totalContributions,
     totalPolicies,
-    totalPayouts,
-    totalDisputes,
-    totalMeetings,
-    totalAmendments,
   } = data;
 
   const isDisabled = !totalPolicies || isFetching;
@@ -135,7 +129,7 @@ export default function StokvelOverview({
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Link href="/dashboard/group/members">
+        <Link href={`/dashboard/group/${id}/members`}>
           <StatCard
             icon={Users}
             label="Members"

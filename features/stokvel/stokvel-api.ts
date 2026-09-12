@@ -8,7 +8,9 @@ import type {
   StokvelConstitution,
   StokvelConstitutionRequest,
   StokvelInviteResponse,
-  CreateStokvelInviteRequest
+  CreateStokvelInviteRequest,
+  InviteDetailsResponse,
+  StokvelMembersResponse
 } from './model/types';
 
 export const stokvelApi = createApi({
@@ -101,15 +103,58 @@ export const stokvelApi = createApi({
       }),
       invalidatesTags: ["Stokvel"],
     }),
+
+    getInviteByCode: builder.query<InviteDetailsResponse, string>({
+      query: (code) => ({
+        url: `/stokvels/${code}/get-by-code`,
+        method: "GET"
+      }),
+      providesTags: ["Stokvel"],
+    }),
+
+    getStokvelMembers: builder.query<StokvelMembersResponse, {
+      searchTerm: string;
+      stokvelId: string;
+      page: number;
+      size: number;
+    }>({
+      query: ({
+        searchTerm,
+        stokvelId,
+        page,
+        size
+      }) => ({
+        url: `/stokvels/${stokvelId}/members`,
+        method: 'GET',
+        params: {
+          searchTerm,
+          stokvelId,
+          page,
+          size
+        }
+      }),
+    }),
+
+    updateInvite: builder.mutation<{ success: boolean }, { code: string; newInviteStatus: string }>({
+      query: ({ code, newInviteStatus }) => ({
+        url: `/stokvels/${code}/update-invite`,
+        method: "PUT",
+        body: { newInviteStatus }
+      }),
+      invalidatesTags: ["Stokvel"],
+    }),
   }),
 });
 
 export const {
-  useCreateStokvelMutation,
   useFetchUserStokvelsQuery,
   useGetStokvelByIdQuery,
-  useUpdateStokvelByIdMutation,
-  useCreateStokvelConstitutionMutation,
   useLazyDownloadConstitutionQuery,
-  useCreateStokvelInviteMutation
+  useGetInviteByCodeQuery,
+  useCreateStokvelMutation,
+  useGetStokvelMembersQuery,
+  useCreateStokvelInviteMutation,
+  useCreateStokvelConstitutionMutation,
+  useUpdateStokvelByIdMutation,
+  useUpdateInviteMutation
 } = stokvelApi;

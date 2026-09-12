@@ -24,6 +24,7 @@ export interface Stokvel {
   location?: string;
   type?: string;
   monthlyContribution?: number;
+  activeMembers?: number;
   adminIds?: string[];
   nasasaRegistrationNumber?: string;
   inviteCode?: string;
@@ -50,7 +51,7 @@ export interface StokvelConstitution extends StokvelConstitutionRequest {
   createdBy?: string;
   isActive?: boolean;
   createdAt: Date;
-  updatedAt: Date; 
+  updatedAt: Date;
 }
 
 export interface StokvelMember {
@@ -97,4 +98,35 @@ export interface CreateStokvelInviteRequest {
   lastName: string;
   email: string;
   cellNumber: string;
+}
+
+export interface InviteDetailsResponse {
+  inviteCode: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  cellNumber: string;
+  inviteStatus: "pending" | "accepted" | "declined";
+  hasAccount: boolean;
+  stokvel: { _id: string; name: string; description: string };
+  constitution: {
+    version: number;
+    purpose: string;
+    membershipRules: string;
+    contributionRules: string;
+    payoutRules: string;
+    meetingRules: string;
+    disputeRules: string;
+    constitutionAmendmentRules: string;
+  } | null;
+
+}
+export interface StokvelMembersResponse {
+  members: StokvelMember[];
+  stokvel: Stokvel;
+  meta?: {
+    page?: number;
+    size?: number;
+    total?: number;
+  }
 }
