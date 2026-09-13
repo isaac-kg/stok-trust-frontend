@@ -32,6 +32,8 @@ export interface Stokvel {
   createdBy?: string;
   isActive?: boolean;
   createdAt?: Date;
+  reputation?: number;
+  memberCount?: number;
   updatedAt?: Date;
 }
 
