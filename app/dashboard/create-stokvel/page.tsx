@@ -10,14 +10,14 @@ export default function CreateStokvelPage(): React.ReactElement {
     <div className="p-6">
       <div className="mb-8">
         <Button variant="ghost" size="sm" className="-ml-2 mb-4" asChild>
-          <Link href="/dashboard/group">
+          <Link href="/dashboard/stokvel">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to My Stokvels
           </Link>
         </Button>
         <h1 className="text-2xl font-bold text-slate-900">Create a stokvel</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Start a new savings group with trusted members
+          Start a new stokvel with trusted members
         </p>
       </div>
       <CreateStokvelForm />

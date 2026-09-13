@@ -68,7 +68,7 @@ export default function StokvelOverview({
   };
 
   // after hooks, before early returns — nothing else changes
-  if (isLoadingStokvel) return <Loader message="Loading group details…" />;
+  if (isLoadingStokvel) return <Loader message="Loading stokvel details…" />;
   if (!data) return <ErrorState />;
 
   const {
@@ -102,9 +102,9 @@ export default function StokvelOverview({
       />
       <div className="mb-8">
         <Button variant="ghost" size="sm" className="-ml-4 mb-4" asChild>
-          <Link href="/dashboard/group">
+          <Link href="/dashboard/stokvel">
             <ArrowLeft className="h-4 w-4" />
-            Back to Groups
+            Back to Stokvels
           </Link>
         </Button>
         <Card className="overflow-hidden border-slate-200/80 shadow-sm">
@@ -235,7 +235,7 @@ export default function StokvelOverview({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Link href="/dashboard/group/members">
+        <Link href="/dashboard/stokvel/members">
           <StatCard
             icon={Users}
             label="Members"
@@ -245,7 +245,7 @@ export default function StokvelOverview({
             iconColor="text-blue-600"
           />
         </Link>
-        <Link href="/dashboard/group/payments">
+        <Link href="/dashboard/stokvel/payments">
           <StatCard
             icon={Wallet}
             label="Contributions"
@@ -255,7 +255,7 @@ export default function StokvelOverview({
             iconColor="text-emerald-600"
           />
         </Link>
-        <Link href="/dashboard/group/votes">
+        <Link href="/dashboard/stokvel/votes">
           <StatCard
             icon={Wallet}
             label="Payouts"
@@ -265,7 +265,7 @@ export default function StokvelOverview({
             iconColor="text-amber-600"
           />
         </Link>
-        <Link href="/dashboard/group/documents">
+        <Link href="/dashboard/stokvel/documents">
           <StatCard
             icon={Vote}
             label="Votes"
@@ -313,7 +313,7 @@ export default function StokvelOverview({
             iconColor="text-indigo-600"
           />
         </div>
-        <Link href="/dashboard/group/meetings">
+        <Link href="/dashboard/stokvel/meetings">
           <StatCard
             icon={Wallet}
             label="Banking"

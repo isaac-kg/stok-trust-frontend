@@ -121,7 +121,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
 
   return (
     <div className="p-6">
-        {/* <Button variant="ghost" size="sm" className="-ml-2 mb-4" asChild> <Link href="/dashboard/group">
+        {/* <Button variant="ghost" size="sm" className="-ml-2 mb-4" asChild> <Link href="/dashboard/stokvel">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to My Stokvels
           </Link></Button>

@@ -10,7 +10,7 @@ const JoinBanner = () => {
 				<div>
 					<h3 className="font-semibold text-slate-900">Looking to join an existing stokvel?</h3>
 					<p className="text-sm text-slate-600 mt-1">
-						Browse available groups or enter an invite code
+						Browse available stokvels or enter an invite code
 					</p>
 				</div>
 
