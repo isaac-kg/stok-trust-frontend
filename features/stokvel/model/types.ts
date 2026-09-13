@@ -5,6 +5,7 @@ export interface CreateStokvelRequest {
   description: string;
   location: string;
   monthlyContribution: number;
+  contributionFrequency?: string;
   nasasaRegistrationNumber?: string;
 }
 
@@ -24,6 +25,7 @@ export interface Stokvel {
   location?: string;
   type?: string;
   monthlyContribution?: number;
+  contributionFrequency?: string;
   adminIds?: string[];
   nasasaRegistrationNumber?: string;
   inviteCode?: string;

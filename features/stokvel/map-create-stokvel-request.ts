@@ -26,6 +26,7 @@ export function mapFormValuesToCreateStokvelRequest(
     description: values.description?.trim() ?? '',
     location: buildLocation(values),
     monthlyContribution,
+    contributionFrequency: values.contributionFrequency,
   };
 
   if (values.isNasasaRegistered) {

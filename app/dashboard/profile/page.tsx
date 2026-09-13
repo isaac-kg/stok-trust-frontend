@@ -265,7 +265,7 @@ export default function ProfilePage(): React.ReactElement {
         </div>
       </Card>
 
-      {/* Reputation by Group */}
+      {/* Reputation by Stokvel */}
       {memberships.length > 0 && (
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Reputation by Stokvel</h3>
