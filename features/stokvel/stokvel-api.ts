@@ -1,13 +1,22 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { apiBaseQuery } from '@/lib/api-base-query';
-import type { CreateStokvelRequest, CreateStokvelResponse } from './model/types';
+import type {
+  CreateStokvelRequest,
+  GetStokvelByIdResponse,
+  FetchStokvelsResponse,
+  Stokvel,
+  StokvelConstitution,
+  StokvelConstitutionRequest,
+  StokvelInviteResponse,
+  CreateStokvelInviteRequest
+} from './model/types';
 
 export const stokvelApi = createApi({
   reducerPath: 'stokvelApi',
   baseQuery: apiBaseQuery,
   tagTypes: ['Stokvel'],
   endpoints: (builder) => ({
-    createStokvel: builder.mutation<CreateStokvelResponse, CreateStokvelRequest>({
+    createStokvel: builder.mutation<Stokvel, CreateStokvelRequest>({
       query: (body) => ({
         url: '/stokvels',
         method: 'POST',
@@ -15,20 +24,39 @@ export const stokvelApi = createApi({
       }),
       invalidatesTags: ['Stokvel'],
     }),
-    //get all stokvels BASED ON SEARCH AND FILTERS
-    getStokvels: builder.query({
-      query: ({ search, filters }: { search: string, filters: Record<string, string> }) => ({
+    createStokvelConstitution: builder.mutation<StokvelConstitution, StokvelConstitutionRequest>({
+      query: (body) => ({
+        url: 'stokvels/create-constitution',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Stokvel'],
+    }),
+    fetchUserStokvels: builder.query<FetchStokvelsResponse, {
+      searchTerm: string;
+      roleFilter: string;
+      page: number;
+      size: number;
+    }>({
+      query: ({
+        searchTerm,
+        roleFilter,
+        page,
+        size
+      }) => ({
         url: '/stokvels',
         method: 'GET',
         params: {
-          search,
-          filters,
-        },
+          searchTerm,
+          roleFilter,
+          page,
+          size
+        }
       }),
     }),
     //get stokvel by id
-    getStokvelById: builder.query({
-      query: (id) => ({
+    getStokvelById: builder.query<GetStokvelByIdResponse, { id: string }>({
+      query: ({ id }) => ({
         url: `/stokvels/${id}`,
         method: 'GET',
       }),
@@ -42,7 +70,46 @@ export const stokvelApi = createApi({
       }),
       invalidatesTags: ['Stokvel'],
     }),
+
+    downloadConstitution: builder.query<
+      Blob,
+      { stokvelId: string; version?: number }
+    >({
+      query: ({ stokvelId, version }) => ({
+        url: `/stokvels/${stokvelId}/generate-constitution-pdf`,
+        method: 'GET',
+        params: version !== undefined ? { version } : undefined,
+        // Parse as binary, not JSON — and capture the filename from headers
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          const disposition = response.headers.get('Content-Disposition') ?? '';
+          const match = disposition.match(/filename="?([^";]+)"?/);
+          return Object.assign(blob, {
+            _filename: match?.[1] ?? `constitution.pdf`,
+          });
+        },
+      }),
+    }),
+    createStokvelInvite: builder.mutation<
+      StokvelInviteResponse,
+      CreateStokvelInviteRequest
+    >({
+      query: ({ stokvelId, ...body }) => ({
+        url: `/stokvels/${stokvelId}/invites`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Stokvel"],
+    }),
   }),
 });
 
-export const { useCreateStokvelMutation, useGetStokvelsQuery, useGetStokvelByIdQuery, useUpdateStokvelByIdMutation } = stokvelApi;
+export const {
+  useCreateStokvelMutation,
+  useFetchUserStokvelsQuery,
+  useGetStokvelByIdQuery,
+  useUpdateStokvelByIdMutation,
+  useCreateStokvelConstitutionMutation,
+  useLazyDownloadConstitutionQuery,
+  useCreateStokvelInviteMutation
+} = stokvelApi;

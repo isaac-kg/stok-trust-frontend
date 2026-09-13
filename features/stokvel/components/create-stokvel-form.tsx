@@ -36,7 +36,7 @@ import { useCreateStokvelMutation } from "../stokvel-api";
 import { mapFormValuesToCreateStokvelRequest } from "../map-create-stokvel-request";
 import { toast } from "sonner";
 
-const groupTypes = [
+const stokvelTypes = [
   {
     value: "Savings",
     label: "Savings",
@@ -199,7 +199,7 @@ export function CreateStokvelForm(): React.ReactElement {
       toast.success("Stokvel created");
       const nextId = result._id;
       if(nextId) {
-        router.push(`/dashboard/constitution-builder/${encodeURIComponent(nextId)}`);
+        router.push(`/dashboard/constitution-builder/${nextId}`);
       } else {
         toast.error("Could not create stokvel", {
           description: "Check your details an try again.",
@@ -224,7 +224,7 @@ export function CreateStokvelForm(): React.ReactElement {
         <Form className="space-y-6">
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">
-              Group Details
+              Stokvel Details
             </h2>
 
             <div className="space-y-4">
@@ -239,7 +239,7 @@ export function CreateStokvelForm(): React.ReactElement {
                 label="Stokvel Type"
                 placeholder="Select stokvel type"
               >
-                {groupTypes.map((type) => (
+                {stokvelTypes.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
                   </SelectItem>
