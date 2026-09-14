@@ -1,7 +1,7 @@
 "use client";
 
+import { useState } from 'react';
 import { useAppSelector } from '@/store/hooks';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import StatCard from '@/components/shared/StatCard';
 import {
   Users,
@@ -10,7 +10,6 @@ import {
   Vote,
 } from 'lucide-react';
 import ReputationBadge, { getReputationLevel } from '@/components/shared/ReputableTab';
-import { useState } from 'react';
 import FinancialAdvisor from '@/components/components/FinencialAdvisor';
 import BudgetCalculator from '@/components/components/BudgetCalculator';
 

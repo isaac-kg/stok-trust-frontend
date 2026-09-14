@@ -2,30 +2,39 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, Users } from "lucide-react";
+import { Search, Users, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import { useGetStokvelMembersQuery } from "../stokvel-api";
-import Loader from "@/components/shared/loader";
-import EmptyState from "@/components/components/EmptyState";
-import ErrorState from "@/components/shared/error-state";
 import Table, { TableColumn } from "@/components/shared/Table";
 import { StokvelMember } from "../model/types";
+import { useAppSelector } from "@/store/hooks";
+import { useGetStokvelMembersQuery } from "../stokvel-api";
+
+import Link from "next/link";
+import MakeUserStokvelAdmin from "./make-user-admin-modal";
+import Loader from "@/components/shared/loader";
+import ErrorState from "@/components/shared/error-state";
+import EmptyState from "@/components/components/EmptyState";
 
 export default function StokvelMembers({
   id,
 }: {
   id: string;
 }): React.ReactElement {
-  console.log("id =>", id);
-  // ✅ ALL hooks first, before any early returns
+  const user = useAppSelector((state) => state.auth.user);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
+  const [memberName, setMemberName] = useState("");
+  const [userId, setUserId] = useState("");
+  const [openMakeUserAdminMOdal, setOpenMakeUserAdminMOdal] = useState(false);
+
   const {
     data,
     isLoading: isLoadingStokvelMembers,
     error: errorStokvelMembers,
+    refetch,
   } = useGetStokvelMembersQuery({
     searchTerm,
     stokvelId: id ?? "",
@@ -42,31 +51,89 @@ export default function StokvelMembers({
     return <ErrorState message={message} />;
   }
 
+  const handleOpenMakeUserAdmin = ({
+    userId,
+    memberName,
+  }: {
+    userId: string;
+    memberName: string;
+  }) => {
+    setUserId(userId);
+    setMemberName(memberName);
+    setOpenMakeUserAdminMOdal(true);
+  };
+
   const { stokvel, members } = data || { data: { stokvel: {}, members: [] } };
+
   const columns: TableColumn<StokvelMember>[] = [
-  {
-    key: 'name',
-    header: 'Member',
-    render: (_, member) => (
-      <div>
-        <p className="font-medium text-slate-900">{member.userDetails?.profile.firstName} {member.userDetails?.profile.lastName}</p>
-        <p className="text-xs text-slate-500">{member.userDetails?.profile.email}</p>
-      </div>
-    ),
-  },
-  {
-    key: 'role',
-    header: 'Role',
-    render: (value) => (
-      <span className="capitalize">
-        {String(value).toLowerCase()}
-      </span>
-    ),
-  },
-];
+    {
+      key: "name",
+      header: "Member",
+      render: (_, member: StokvelMember) => (
+        <div>
+          <p className="font-medium text-slate-900">
+            {member.userDetails?.profile.firstName}{" "}
+            {member.userDetails?.profile.lastName}
+          </p>
+          <p className="text-xs text-slate-500">
+            {member.userDetails?.profile.email}
+          </p>
+          <p className="text-xs text-slate-500">
+            {member.userDetails?.profile.cellNumber}
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      header: "Role",
+      render: (value) => (
+        <span className="capitalize">{String(value).toLowerCase()}</span>
+      ),
+    },
+    ...((stokvel?.adminIds || []).includes(user?._id ?? "")
+      ? [
+          {
+            key: "actions",
+            header: "Actions",
+            render: (_, member: StokvelMember) => (
+              <div className="flex gap-2">
+                {member.role !== "administrator" ? (
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      handleOpenMakeUserAdmin({
+                        userId: member.userId ?? "",
+                        memberName: `${member.userDetails?.profile.firstName} ${member.userDetails?.profile.lastName}`,
+                      })
+                    }
+                    variant="default"
+                    size="sm"
+                  >
+                    Make Admin
+                  </Button>
+                ) : (
+                  <Button type="button" variant="destructive" size="sm">
+                    Remove Admin
+                  </Button>
+                )}
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="p-6">
+      <MakeUserStokvelAdmin
+        isOpen={openMakeUserAdminMOdal}
+        stokvelId={id}
+        memberName={memberName}
+        userId={userId}
+        setIsOpen={setOpenMakeUserAdminMOdal}
+        refresh={refetch}
+      />
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div className="mb-8">
@@ -74,6 +141,15 @@ export default function StokvelMembers({
             {stokvel?.name} Members
           </h1>
           <p className="text-sm text-slate-500 mt-1">View & Manage Members</p>
+        </div>
+
+        <div className="mb-8">
+          <Button variant="ghost" size="sm" className="-ml-4 mb-4" asChild>
+            <Link href={`/dashboard/group/${id}`}>
+              <ArrowLeft className="h-4 w-4" />
+              Back to Stokvel
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -109,10 +185,10 @@ export default function StokvelMembers({
       ) : (
         <div>
           <Table
-                columns={columns}
-                data={members ?? []}
-                loading={isLoadingStokvelMembers}
-              />
+            columns={columns}
+            data={members ?? []}
+            loading={isLoadingStokvelMembers}
+          />
         </div>
       )}
     </div>

@@ -143,6 +143,15 @@ export const stokvelApi = createApi({
       }),
       invalidatesTags: ["Stokvel"],
     }),
+
+    makeUserStokvelAdmin: builder.mutation<{ success: boolean }, { stokvelId: string; userId: string }>({
+      query: ({ stokvelId, userId }) => ({
+        url: `/stokvels/${stokvelId}/make-user-admin`,
+        method: "PUT",
+        body: { userId }
+      }),
+      invalidatesTags: ["Stokvel"],
+    }),
   }),
 });
 
@@ -156,5 +165,6 @@ export const {
   useCreateStokvelInviteMutation,
   useCreateStokvelConstitutionMutation,
   useUpdateStokvelByIdMutation,
-  useUpdateInviteMutation
+  useUpdateInviteMutation,
+  useMakeUserStokvelAdminMutation
 } = stokvelApi;

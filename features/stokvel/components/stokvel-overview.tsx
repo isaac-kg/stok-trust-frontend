@@ -21,7 +21,7 @@ import {
   useLazyDownloadConstitutionQuery,
 } from "@/features/stokvel/stokvel-api";
 import { useAppSelector } from "@/store/hooks";
-import InviteMemberModal from "./inviteMemberModal";
+import InviteMemberModal from "./invite-member-modal";
 import Loader from "@/components/shared/loader";
 import ErrorState from "@/components/shared/error-state";
 
