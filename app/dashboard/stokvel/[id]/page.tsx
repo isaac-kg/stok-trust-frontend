@@ -1,9 +1,10 @@
 import StokvelOverview from "@/features/stokvel/components/stokvel-overview";
-interface GroupDetailsPageProps {
+
+interface StokvelDetailsPageProps {
 	params: Promise<{ id: string }>;
 }
 
-export default async function GroupDetailsPage({ params }: GroupDetailsPageProps): Promise<React.ReactElement> {
+export default async function StokvelDetailsPage({ params }: StokvelDetailsPageProps): Promise<React.ReactElement> {
 	const { id } = await params;
 	return <StokvelOverview id={id} />;
 }

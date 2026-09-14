@@ -5,6 +5,7 @@ export interface CreateStokvelRequest {
   description: string;
   location: string;
   monthlyContribution: number;
+  contributionFrequency?: string;
   nasasaRegistrationNumber?: string;
 }
 
@@ -24,6 +25,7 @@ export interface Stokvel {
   location?: string;
   type?: string;
   monthlyContribution?: number;
+  contributionFrequency?: string;
   activeMembers?: number;
   adminIds?: string[];
   nasasaRegistrationNumber?: string;
@@ -31,6 +33,8 @@ export interface Stokvel {
   createdBy?: string;
   isActive?: boolean;
   createdAt?: Date;
+  reputation?: number;
+  memberCount?: number;
   updatedAt?: Date;
 }
 

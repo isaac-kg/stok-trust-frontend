@@ -16,7 +16,7 @@ export default async function ConstitutionBuilderPage({
   return (
     <div className="p-6">
       <Button variant="ghost" size="sm" className="-ml-4 mb-4" asChild>
-        <Link href="/dashboard/group">
+        <Link href="/dashboard/stokvel">
           <ArrowLeft className="h-4 w-4" />
           Back to My Stokvels
         </Link>
