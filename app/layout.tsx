@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StokTrust - Stock Management Platform",
-  description: "Sign in to StokTrust to manage your stock portfolio and access all features",
+  title: "StokTrust — Trusted Stokvels",
+  description:
+    "Create and run your stokvel with clear rules, member invites, contribution tracking, and transparent payouts.",
 };
 
 export default function RootLayout({
