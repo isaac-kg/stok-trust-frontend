@@ -153,7 +153,7 @@ export default function StokvelPage(): React.ReactElement {
                     />
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Users className="h-3 w-3" />
-                      {stokvel?.memberCount || 10}
+                      {stokvel?.activeMembers || 10}
                     </div>
                   </div>
                 </Card>

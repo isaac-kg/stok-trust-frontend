@@ -145,7 +145,7 @@ export default function StokvelMembers({
 
         <div className="mb-8">
           <Button variant="ghost" size="sm" className="-ml-4 mb-4" asChild>
-            <Link href={`/dashboard/group/${id}`}>
+            <Link href={`/dashboard/stokvel/${id}`}>
               <ArrowLeft className="h-4 w-4" />
               Back to Stokvel
             </Link>
