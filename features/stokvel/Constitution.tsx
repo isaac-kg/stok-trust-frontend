@@ -120,21 +120,9 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
   }
 
   return (
-    <div className="p-6">
-        {/* <Button variant="ghost" size="sm" className="-ml-2 mb-4" asChild> <Link href="/dashboard/stokvel">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to My Stokvels
-          </Link></Button>
-
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Create the rules for your stokvel</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Define the rules for your stokvel
-          </p>
-        </div> */}
-
+    <div>
       {/* Progress */}
-      <div className="mb-8">
+      <div className="mb-4 md:mb-8">
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>Step {currentStep} of {steps.length}</span>
           <span>{Math.round(progress)}% complete</span>
@@ -143,7 +131,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
       </div>
 
       {/* Step Indicators */}
-      <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+      {/* <div className="flex items-center justify-between mb-4 md:mb-8 overflow-x-auto pb-2">
         {steps.map((step, index) => {
           const isCompleted = currentStep > step.id;
           const isCurrent = currentStep === step.id;
@@ -168,7 +156,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
             </button>
           );
         })}
-      </div>
+      </div> */}
 
       {/* Current Step Content */}
       <Card className="p-6 mb-6">
@@ -197,12 +185,12 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
       </Card>
 
       {/* Navigation */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-4 mb-4 lg:mb-8">
         {currentStep > 1 && (
           <Button
             variant="outline"
             onClick={() => setCurrentStep(currentStep - 1)}
-            className="flex-1"
+            className="w-full md:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
@@ -212,7 +200,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
         {currentStep < steps.length ? (
           <Button
             onClick={() => setCurrentStep(currentStep + 1)}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
             disabled={isLoading}
           >
             Next
@@ -221,7 +209,7 @@ export default function ConstitutionBuilder({ id }: { id: string }) {
         ) : (
           <Button
             onClick={handleSubmit}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700"
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : 'Save & Submit for Approval'}

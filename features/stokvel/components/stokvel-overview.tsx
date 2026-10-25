@@ -13,7 +13,8 @@ import {
   Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import ReputationBadge from "@/components/shared/ReputableTab";
@@ -34,6 +35,7 @@ export default function StokvelOverview({
   id: string;
 }): React.ReactElement {
 
+  const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
@@ -48,6 +50,17 @@ export default function StokvelOverview({
   // ✅ No args here — args go to the trigger function, not the hook
   const [download, { isFetching }] = useLazyDownloadConstitutionQuery();
 
+  const groupDetails = data?.stokvel;
+  const isStokvelAdmin = groupDetails?.adminIds?.includes(user?._id ?? "");
+  const shouldRedirectAdminToSetup =
+    !!groupDetails && isStokvelAdmin && !groupDetails.isActive;
+
+  useEffect(() => {
+    if (shouldRedirectAdminToSetup) {
+      router.replace(`/dashboard/constitution-builder/${id}`);
+    }
+  }, [shouldRedirectAdminToSetup, id, router]);
+
   const handleDownload = async () => {
     try {
       // ✅ args passed here
@@ -55,7 +68,7 @@ export default function StokvelOverview({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = (blob as never)._filename ?? "constitution.pdf";
+      a.download = (blob as unknown as { _filename: string })._filename ?? "constitution.pdf";
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -66,18 +79,18 @@ export default function StokvelOverview({
   };
 
   // after hooks, before early returns — nothing else changes
-  if (isLoadingStokvel) return <Loader message="Loading stokvel details…" />;
-  if (!data) return <ErrorState />;
+  if (isLoadingStokvel || shouldRedirectAdminToSetup) {
+    return <Loader message="Loading stokvel details…" />;
+  }
+  if (!data || !groupDetails) return <ErrorState />;
 
   const {
-    stokvel: groupDetails,
     members,
     totalContributions,
     totalPolicies,
   } = data;
 
   const isDisabled = !totalPolicies || isFetching;
-  const isStokvelAdmin = groupDetails?.adminIds?.includes(user?._id ?? "");
   const description = groupDetails.description ?? "";
   const isDescriptionLong = description.length > 140;
   const contributionLabel =
@@ -112,6 +125,7 @@ export default function StokvelOverview({
                     </h1>
                     <StatusBadge
                       status={groupDetails?.isActive ? "active" : "inactive"}
+                      className={`${groupDetails?.isActive ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'}`}
                     />
                   </div>
                   {description && (
@@ -229,7 +243,7 @@ export default function StokvelOverview({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-       <Link href={`/dashboard/stokvel/${id}/members`}> 
+       <Link href={`/dashboard/group/${id}/members`}>
           <StatCard
             icon={Users}
             label="Members"
@@ -239,7 +253,7 @@ export default function StokvelOverview({
             iconColor="text-blue-600"
           />
         </Link>
-        <Link href="/dashboard/stokvel/payments">
+       <Link href={`/dashboard/group/${id}/payments`}>
           <StatCard
             icon={Wallet}
             label="Contributions"
@@ -249,7 +263,7 @@ export default function StokvelOverview({
             iconColor="text-emerald-600"
           />
         </Link>
-        <Link href="/dashboard/stokvel/votes">
+        <Link href={`/dashboard/group/${id}/votes`}>
           <StatCard
             icon={Wallet}
             label="Payouts"
@@ -259,7 +273,7 @@ export default function StokvelOverview({
             iconColor="text-amber-600"
           />
         </Link>
-        <Link href="/dashboard/stokvel/documents">
+        <Link href={`/dashboard/group/${id}/documents`}>
           <StatCard
             icon={Vote}
             label="Votes"

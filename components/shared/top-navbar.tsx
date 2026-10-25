@@ -95,8 +95,8 @@ export function TopNavbar({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-3 py-2 border-b border-[#e2e8f0]">
-                <p className="font-medium text-sm">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                <p className="text-xs text-slate-500">{user?.profile?.email}</p>
+                <p className="font-medium text-sm truncate max-w-[200px]">{user?.profile?.firstName} {user?.profile?.lastName}</p>
+                <p className="text-xs text-slate-500 truncate max-w-[200px]">{user?.profile?.email}</p>
               </div>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/profile" className="cursor-pointer">

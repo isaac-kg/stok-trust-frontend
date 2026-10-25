@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 
 const JoinBanner = () => {
 	return (
-		<Card className="p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 mt-20">
+		<Card className="p-4 md:p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 mt-8 md:mt-20">
 			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
 				<div>
 					<h3 className="font-semibold text-slate-900">Looking to join an existing stokvel?</h3>
@@ -14,9 +14,9 @@ const JoinBanner = () => {
 					</p>
 				</div>
 
-				<Button variant="outline" asChild >
+				<Button className="w-full md:w-auto" variant="outline" asChild >
 					<Link href="/dashboard/join-stokvel">
-						Join a Stokvels
+						Join a Stokvel
 						<ChevronRight className="h-4 w-4 ml-1" />
 					</Link>
 				</Button>
