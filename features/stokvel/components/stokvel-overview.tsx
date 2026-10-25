@@ -68,7 +68,7 @@ export default function StokvelOverview({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = (blob as never)._filename ?? "constitution.pdf";
+      a.download = (blob as unknown as { _filename: string })._filename ?? "constitution.pdf";
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
