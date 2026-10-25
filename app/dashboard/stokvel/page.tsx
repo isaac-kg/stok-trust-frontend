@@ -61,9 +61,8 @@ export default function StokvelPage(): React.ReactElement {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-
-        <div className="mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 lg:mb-8">
+        <div>
           <h1 className="text-2xl font-bold text-slate-900">My Stokvels</h1>
           <p className="text-sm text-slate-500 mt-1">
             Manage your stokvels and memberships
@@ -110,23 +109,29 @@ export default function StokvelPage(): React.ReactElement {
           description={searchTerm || roleFilter !== 'all'
             ? "Try adjusting your search or filters"
             : "Create your first stokvel or join an existing one to get started"}
-          action={!searchTerm && roleFilter === 'all' ? () => window.location.href = '/dashboard/create-stokvel' : undefined}
-          actionLabel="Create Stokvel"
+          action={!searchTerm && roleFilter === 'all' ? '/dashboard/create-stokvel' : undefined}
+          actionLabel={!searchTerm && roleFilter === 'all' ? 'Create Stokvel' : undefined}
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
           {stokvels?.map((stokvel: Stokvel) => {
+            const isAdmin = stokvel?.adminIds?.includes(user?._id ?? "");
+            const needsSetup = isAdmin && !stokvel.isActive;
+            const href = needsSetup
+              ? `/dashboard/constitution-builder/${stokvel._id}`
+              : `/dashboard/stokvel/${stokvel._id}`;
+
             return (
               <Link
                 key={stokvel._id}
-                href={`/dashboard/stokvel/${stokvel._id}`}
+                href={href}
               >
                 <Card className="p-5 hover:shadow-md transition-all hover:border-emerald-200 group">
                   <div className="flex items-start justify-between mb-4">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg">
                       {stokvel.name?.[0]?.toUpperCase() || 'S'}
                     </div>
-                    <StatusBadge status={stokvel.isActive ? 'active' : 'inactive'} />
+                    <StatusBadge status={stokvel.isActive ? 'active' : 'inactive'} className={`${stokvel.isActive ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'}`} />
                   </div>
 
                   <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-emerald-700 transition-colors">
@@ -136,7 +141,7 @@ export default function StokvelPage(): React.ReactElement {
                   <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                     <span className="px-2 py-0.5 bg-slate-100 rounded-full">{stokvel.type || 'Savings'}</span>
                     <span>•</span>
-                    <span>{stokvel?.adminIds?.includes(user?._id ?? "") ? 'Admin' : 'Member'}</span>
+                    <span>{isAdmin ? 'Admin' : 'Member'}</span>
                   </div>
 
                   {stokvel.location && (

@@ -378,7 +378,7 @@ export function CreateStokvelForm(): React.ReactElement {
           </Card>
 
           <div className="flex gap-3 justify-end">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
               Create & Set Up Constitution
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
