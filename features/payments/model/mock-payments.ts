@@ -1,0 +1,90 @@
+import type { MyPaymentItem } from "./types";
+
+/** Temporary mock rows so UI + backend contract can be reviewed together. */
+export const MOCK_MY_PAYMENTS: MyPaymentItem[] = [
+  {
+    _id: "pay_mock_001",
+    type: "contribution",
+    status: "Pending",
+    amount: 500,
+    currency: "ZAR",
+    periodLabel: "October 2026",
+    dueDate: "2026-10-31",
+    stokvel: {
+      _id: "stok_mock_a",
+      name: "December Club",
+    },
+    note: "Contribution due this month",
+  },
+  {
+    _id: "pay_mock_002",
+    type: "contribution",
+    status: "Pending_Approval",
+    amount: 300,
+    currency: "ZAR",
+    periodLabel: "October 2026",
+    dueDate: "2026-10-01",
+    paidAt: "2026-10-03",
+    stokvel: {
+      _id: "stok_mock_b",
+      name: "Family Burial",
+    },
+    note: "Proof submitted — awaiting admin verification",
+  },
+  {
+    _id: "pay_mock_003",
+    type: "contribution",
+    status: "Paid_On_Time",
+    amount: 500,
+    currency: "ZAR",
+    periodLabel: "September 2026",
+    dueDate: "2026-09-01",
+    paidAt: "2026-08-28",
+    stokvel: {
+      _id: "stok_mock_a",
+      name: "December Club",
+    },
+  },
+  {
+    _id: "pay_mock_004",
+    type: "contribution",
+    status: "Missed",
+    amount: 200,
+    currency: "ZAR",
+    periodLabel: "September 2026",
+    dueDate: "2026-09-05",
+    stokvel: {
+      _id: "stok_mock_c",
+      name: "Soweto Sisters Savings",
+    },
+    note: "Missed contribution — contact your admin",
+  },
+  {
+    _id: "pay_mock_005",
+    type: "payout",
+    status: "Approved",
+    amount: 4500,
+    currency: "ZAR",
+    periodLabel: "January 2027",
+    dueDate: "2027-01-15",
+    stokvel: {
+      _id: "stok_mock_a",
+      name: "December Club",
+    },
+    note: "Your rotating payout is scheduled",
+  },
+  {
+    _id: "pay_mock_006",
+    type: "payout",
+    status: "Paid",
+    amount: 2800,
+    currency: "ZAR",
+    periodLabel: "August 2026",
+    paidAt: "2026-08-12",
+    stokvel: {
+      _id: "stok_mock_b",
+      name: "Family Burial",
+    },
+    note: "Payout completed",
+  },
+];

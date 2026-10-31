@@ -160,6 +160,7 @@ export const {
   useGetStokvelByIdQuery,
   useLazyDownloadConstitutionQuery,
   useGetInviteByCodeQuery,
+  useLazyGetInviteByCodeQuery,
   useCreateStokvelMutation,
   useGetStokvelMembersQuery,
   useCreateStokvelInviteMutation,
