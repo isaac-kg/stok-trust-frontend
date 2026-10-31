@@ -15,7 +15,7 @@ const JoinBanner = () => {
 				</div>
 
 				<Button className="w-full md:w-auto" variant="outline" asChild >
-					<Link href="/dashboard/join-stokvel">
+					<Link href="/dashboard/invites">
 						Join a Stokvel
 						<ChevronRight className="h-4 w-4 ml-1" />
 					</Link>
