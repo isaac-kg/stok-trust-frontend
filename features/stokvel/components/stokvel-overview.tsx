@@ -243,7 +243,7 @@ export default function StokvelOverview({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-       <Link href={`/dashboard/group/${id}/members`}>
+       <Link href={`/dashboard/stokvel/${id}/members`}>
           <StatCard
             icon={Users}
             label="Members"
@@ -253,7 +253,7 @@ export default function StokvelOverview({
             iconColor="text-blue-600"
           />
         </Link>
-       <Link href={`/dashboard/group/${id}/payments`}>
+       <Link href={`/dashboard/stokvel/${id}/contributions`}>
           <StatCard
             icon={Wallet}
             label="Contributions"
@@ -263,7 +263,7 @@ export default function StokvelOverview({
             iconColor="text-emerald-600"
           />
         </Link>
-        <Link href={`/dashboard/group/${id}/votes`}>
+        <Link href={`/dashboard/stokvel/${id}/payouts`}>
           <StatCard
             icon={Wallet}
             label="Payouts"
@@ -273,7 +273,7 @@ export default function StokvelOverview({
             iconColor="text-amber-600"
           />
         </Link>
-        <Link href={`/dashboard/group/${id}/documents`}>
+        <Link href={`/dashboard/stokvel/${id}/votes`}>
           <StatCard
             icon={Vote}
             label="Votes"
