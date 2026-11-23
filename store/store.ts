@@ -4,6 +4,8 @@ import { authApi } from '@/features/auth/auth-api';
 import { authSlice } from '@/features/auth/auth-slice';
 import { usersApi } from '@/features/users/users-api';
 import { stokvelApi } from '@/features/stokvel/stokvel-api';
+import { paymentsApi } from '@/features/payments/payments-api';
+import { credScoreApi } from '@/features/cred-score/cred-score-api';
 
 function createNoopStorage() {
   return {
@@ -29,6 +31,8 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
   [stokvelApi.reducerPath]: stokvelApi.reducer,
+  [paymentsApi.reducerPath]: paymentsApi.reducer,
+  [credScoreApi.reducerPath]: credScoreApi.reducer,
   auth: persistedAuthReducer,
 });
 
@@ -39,7 +43,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
-    }).concat(authApi.middleware, usersApi.middleware, stokvelApi.middleware),
+    }    ).concat(authApi.middleware, usersApi.middleware, stokvelApi.middleware, paymentsApi.middleware, credScoreApi.middleware),
 });
 
 export const persistor = persistStore(store);

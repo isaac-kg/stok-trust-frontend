@@ -87,7 +87,9 @@ export default function JoinStokvelPage(): React.ReactElement {
   const loader = isUpdating || isSigningIn || isSigningUp;
   const [step, setStep] = useState<"invite" | "auth">("invite");
 
-  async function handleUpdateInvite(newInviteStatus: string): Promise<void> {
+  async function handleUpdateInvite(
+    newInviteStatus: "accepted" | "declined",
+  ): Promise<void> {
     try {
       await updateInvite({ code, newInviteStatus }).unwrap();
     } catch {

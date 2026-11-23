@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { MyInviteItem } from "../model/types";
+import type { MyInviteItem, MyInviteStatus } from "../model/types";
 
 interface Props {
   open: boolean;
@@ -17,6 +17,7 @@ interface Props {
   invite: MyInviteItem | null;
   onAccept: (invite: MyInviteItem) => void;
   onDecline: (invite: MyInviteItem) => void;
+  isUpdating: boolean;
 }
 
 function formatDate(value?: string): string {
@@ -40,12 +41,23 @@ const CONSTITUTION_FIELDS: {
   { key: "payoutRules", label: "Payouts" },
 ];
 
+function statusBadgeClass(status: MyInviteStatus): string {
+  if (status === "accepted") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+  if (status === "declined") {
+    return "border-slate-200 bg-slate-100 text-slate-600";
+  }
+  return "border-amber-200 bg-amber-50 text-amber-700";
+}
+
 export function InviteDetailModal({
   open,
   onOpenChange,
   invite,
   onAccept,
   onDecline,
+  isUpdating,
 }: Props): React.ReactElement {
   if (!invite) {
     return (
@@ -58,11 +70,12 @@ export function InviteDetailModal({
   const invitedBy = invite.invitedBy
     ? `${invite.invitedBy.firstName} ${invite.invitedBy.lastName}`
     : null;
+  const stokvel = invite.stokvel;
   const contributionLabel =
-    invite.stokvel.monthlyContribution != null
-      ? `R${invite.stokvel.monthlyContribution.toLocaleString("en-ZA")}${
-          invite.stokvel.contributionFrequency
-            ? ` · ${invite.stokvel.contributionFrequency}`
+    stokvel && stokvel.monthlyContribution != null
+      ? `R${stokvel.monthlyContribution.toLocaleString("en-ZA")}${
+          stokvel.contributionFrequency
+            ? ` · ${stokvel.contributionFrequency}`
             : ""
         }`
       : null;
@@ -82,26 +95,28 @@ export function InviteDetailModal({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <DialogTitle className="text-xl tracking-tight text-slate-900">
-                  {invite.stokvel.name}
+                  {invite.stokvel?.name ?? "Stokvel unavailable"}
                 </DialogTitle>
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
-                  Pending
+                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusBadgeClass(invite.status)}`}>
+                  {invite.status}
                 </span>
               </div>
               <DialogDescription className="mt-1.5 text-slate-500">
-                Review this stokvel before you accept or decline the invite.
+                {invite.status === "pending"
+                  ? "Review this stokvel before you accept or decline the invite."
+                  : "This invite has been resolved and its status can no longer be changed."}
               </DialogDescription>
             </div>
           </DialogHeader>
         </div>
 
         <div className="space-y-5 overflow-y-auto px-6 py-5">
-          {invite.stokvel.description ? (
+          {invite.stokvel?.description ? (
             <p className="text-sm text-slate-700">{invite.stokvel.description}</p>
           ) : null}
 
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {invite.stokvel.type ? (
+            {invite.stokvel?.type ? (
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">
                   Type
@@ -182,28 +197,42 @@ export function InviteDetailModal({
             </div>
           ) : (
             <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
-              No constitution summary on this invite — Accept will open the full
-              join flow.
+              No constitution summary is available for this invite.
             </p>
           )}
         </div>
 
         <div className="flex flex-col-reverse gap-2 border-t border-slate-100 px-6 py-4 sm:flex-row sm:justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full sm:w-auto"
-            onClick={() => onDecline(invite)}
-          >
-            Decline
-          </Button>
-          <Button
-            type="button"
-            className="w-full sm:w-auto"
-            onClick={() => onAccept(invite)}
-          >
-            Accept invite
-          </Button>
+          {invite.status === "pending" ? (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => onDecline(invite)}
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating…" : "Decline"}
+              </Button>
+              <Button
+                type="button"
+                className="w-full sm:w-auto"
+                onClick={() => onAccept(invite)}
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating…" : "Accept invite"}
+              </Button>
+            </>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

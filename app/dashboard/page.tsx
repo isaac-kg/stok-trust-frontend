@@ -12,18 +12,28 @@ import {
 import ReputationBadge, { getReputationLevel } from '@/components/shared/ReputableTab';
 import FinancialAdvisor from '@/components/components/FinencialAdvisor';
 import BudgetCalculator from '@/components/components/BudgetCalculator';
+import { useGetMyCredScoreQuery } from '@/features/cred-score/cred-score-api';
 
 
 export default function DashboardPage(): React.ReactElement {
   const [budgetData, setBudgetData] = useState<any>(null);
   const user = useAppSelector((state) => state.auth.user);
-  console.log("User: ", user)
+  const {
+    data: scoreRecord,
+    isLoading,
+    isUninitialized,
+    isError: isScoreError,
+  } = useGetMyCredScoreQuery(undefined, {
+    skip: !user?._id,
+    refetchOnMountOrArgChange: true,
+  });
+  const isScoreLoading = isLoading || isUninitialized;
   const stats = {
     myStokvels: 0,
-    trustScore: 50,
     pendingPayments: 0,
     openVotes: 0,
   }
+  const trustScore = scoreRecord?.credScore;
 
   return (
     <div className="p-6">
@@ -37,7 +47,13 @@ export default function DashboardPage(): React.ReactElement {
             Manage your stokvels and track your contributions
           </p>
         </div>
-        <ReputationBadge score={stats.trustScore} level={getReputationLevel(stats.trustScore)} size="lg" showScore={true} />
+        {trustScore !== undefined ? (
+          <ReputationBadge score={trustScore} level={getReputationLevel(trustScore)} size="lg" showScore={true} />
+        ) : (
+          <p className="text-sm text-slate-500">
+            {isScoreLoading ? "Loading trust score…" : "Trust score unavailable"}
+          </p>
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -52,8 +68,8 @@ export default function DashboardPage(): React.ReactElement {
         <StatCard
           icon={TrendingUp}
           label="Trust Score"
-          value={Math.round(stats.trustScore)}
-          subValue="out of 100"
+          value={trustScore === undefined ? (isScoreLoading ? "Loading…" : "—") : Math.round(trustScore)}
+          subValue={isScoreError ? "Unable to load" : "out of 100"}
           iconBg="bg-blue-100"
           iconColor="text-blue-600"
         />

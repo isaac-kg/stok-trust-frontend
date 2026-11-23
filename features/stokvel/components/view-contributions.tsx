@@ -24,16 +24,18 @@ import { useAppSelector } from "@/store/hooks";
 import { useGetStokvelByIdQuery } from "../stokvel-api";
 import Loader from "@/components/shared/loader";
 import ErrorState from "@/components/shared/error-state";
-import { getMockContributions } from "../model/mock-contributions";
 import type {
   AdminVerificationStatus,
+  ContributionPaymentStatus,
   StokvelContribution,
 } from "../model/contribution-types";
+import {
+  useGetStokvelContributionsQuery,
+  useReviewMonthlyContributionMutation,
+  type StokvelContributionActivity,
+} from "@/features/payments/payments-api";
 import ContributionDetailModal from "./contribution-detail-modal";
-import RecordContributionModal, {
-  type RecordContributionSubmitValues,
-} from "./record-contribution-modal";
-import { cn } from "@/lib/utils";
+import PaymentProofModal from "@/features/payments/components/payment-proof-modal";
 
 function formatAmount(amount: number): string {
   return `R${amount.toLocaleString("en-ZA")}`;
@@ -48,6 +50,70 @@ function formatDate(value?: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+function formatPeriod(value: string): string {
+  if (!/^\d{4}-\d{2}$/.test(value)) return value;
+  return new Date(`${value}-01T00:00:00`).toLocaleDateString("en-ZA", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function toContribution(
+  activity: StokvelContributionActivity,
+): StokvelContribution {
+  const proofStatus = activity.paymentProof?.status;
+  let status: ContributionPaymentStatus = "Pending";
+  let adminVerification: AdminVerificationStatus = "unverified";
+
+  if (proofStatus === "rejected") {
+    status = "Rejected";
+    adminVerification = "rejected";
+  } else if (proofStatus === "paid") {
+    status = "Paid_On_Time";
+    adminVerification = "verified";
+  } else if (proofStatus === "pending") {
+    status = "Pending_Approval";
+  } else if (activity.status === "overdue") {
+    status = "Missed";
+  } else if (activity.status === "paid") {
+    status = "Paid_On_Time";
+  }
+
+  return {
+    _id: activity._id,
+    stokvelId: activity.stokvel?._id ?? "",
+    member: activity.member,
+    amount: activity.amount,
+    currency: "ZAR",
+    periodLabel: formatPeriod(activity.month),
+    paymentDate: activity.paidAt,
+    status,
+    adminVerification,
+    verifiedAt: activity.paymentProof?.reviewedAt ?? undefined,
+    verifiedByName: activity.paymentProof?.reviewedByName,
+    verificationNote: activity.paymentProof?.note ?? undefined,
+    receipts: activity.receipts,
+  };
+}
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "data" in error) {
+    const data = error.data;
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "message" in data &&
+      typeof data.message === "string"
+    ) {
+      return data.message;
+    }
+  }
+  if (typeof error === "object" && error !== null && "status" in error) {
+    return `Request failed (${String(error.status)})`;
+  }
+  return "Could not complete the request.";
 }
 
 function VerificationPill({
@@ -92,30 +158,30 @@ function ContributionCard({
 
   return (
     <Card className="border-slate-200/80 p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-semibold text-slate-900">
-              {formatAmount(contribution.amount)}
-            </p>
-            <StatusBadge status={contribution.status} />
-          </div>
-          <p className="mt-1 truncate text-sm font-medium text-slate-700">
-            {memberName}
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-semibold text-slate-900">
+            {formatAmount(contribution.amount)}
           </p>
-          <p className="text-xs text-slate-500">{contribution.periodLabel}</p>
-          <p className="mt-2 flex items-center gap-1 text-xs text-slate-500">
-            <Calendar className="h-3 w-3" />
-            Paid {formatDate(contribution.paymentDate)}
-          </p>
-          <div className="mt-2">
-            <VerificationPill status={contribution.adminVerification} />
-          </div>
-          <p className="mt-1 text-[11px] text-slate-400">
-            {contribution.receipts.length} receipt
-            {contribution.receipts.length === 1 ? "" : "s"}
-          </p>
+          <StatusBadge status={contribution.status} />
         </div>
+        <p className="mt-1 truncate text-sm font-medium text-slate-700">
+          {memberName}
+        </p>
+        <p className="text-xs text-slate-500">{contribution.periodLabel}</p>
+        <p className="mt-2 flex items-center gap-1 text-xs text-slate-500">
+          <Calendar className="h-3 w-3" />
+          {contribution.paymentDate
+            ? `Paid ${formatDate(contribution.paymentDate)}`
+            : "No payment date"}
+        </p>
+        <div className="mt-2">
+          <VerificationPill status={contribution.adminVerification} />
+        </div>
+        <p className="mt-1 text-[11px] text-slate-400">
+          {contribution.receipts.length} proof
+          {contribution.receipts.length === 1 ? "" : "s"}
+        </p>
       </div>
       <Button
         type="button"
@@ -140,26 +206,35 @@ export default function StokvelContributions({
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState<StokvelContribution | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [recordOpen, setRecordOpen] = useState(false);
-  const [contributions, setContributions] = useState<StokvelContribution[]>(
-    () => getMockContributions(id),
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const {
+    data: stokvelData,
+    isLoading: isLoadingStokvel,
+    error: stokvelError,
+  } = useGetStokvelByIdQuery({ id });
+  const {
+    data: contributionData,
+    isLoading: isLoadingContributions,
+    error: contributionError,
+  } = useGetStokvelContributionsQuery(id);
+  const [reviewContribution] = useReviewMonthlyContributionMutation();
+
+  const stokvel = stokvelData?.stokvel;
+  const contributions = useMemo(
+    () => (contributionData?.data ?? []).map(toContribution),
+    [contributionData],
   );
-
-  const { data, isLoading, error } = useGetStokvelByIdQuery({ id: id ?? "" });
-
-  const stokvel = data?.stokvel;
-  const isStokvelAdmin = (stokvel?.adminIds ?? []).includes(user?._id ?? "");
-
+  const isStokvelAdmin = contributionData?.canReview ?? false;
   const filtered = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return contributions;
-    return contributions.filter((c) => {
-      const name = `${c.member.firstName} ${c.member.lastName}`.toLowerCase();
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return contributions;
+    return contributions.filter((contribution) => {
+      const name =
+        `${contribution.member.firstName} ${contribution.member.lastName}`.toLowerCase();
       return (
-        name.includes(q) ||
-        c.periodLabel.toLowerCase().includes(q) ||
-        c.status.toLowerCase().includes(q) ||
-        (c.reference ?? "").toLowerCase().includes(q)
+        name.includes(query) ||
+        contribution.periodLabel.toLowerCase().includes(query) ||
+        contribution.status.toLowerCase().includes(query)
       );
     });
   }, [contributions, searchTerm]);
@@ -169,118 +244,38 @@ export default function StokvelContributions({
     setDetailOpen(true);
   }
 
-  function handleRecordContribution(
-    values: RecordContributionSubmitValues,
-  ): void {
-    const memberName =
-      `${user?.profile?.firstName ?? ""} ${user?.profile?.lastName ?? ""}`.trim() ||
-      "You";
-    const [firstName, ...rest] = memberName.split(" ");
-    const lastName = rest.join(" ") || "";
-    const receipts = values.receiptFile
-      ? [
-          {
-            _id: `rcpt_${Date.now()}`,
-            fileName: values.receiptFile.name,
-            url: URL.createObjectURL(values.receiptFile),
-            uploadedAt: new Date().toISOString(),
-            uploadedByName: memberName,
-          },
-        ]
-      : [];
-
-    const next: StokvelContribution = {
-      _id: `contrib_${Date.now()}`,
-      stokvelId: id,
-      member: {
-        userId: user?._id ?? "me",
-        firstName: firstName || "You",
-        lastName,
-        email: user?.profile?.email,
-      },
-      amount: values.amount,
-      currency: "ZAR",
-      periodLabel: values.periodLabel,
-      paymentDate: values.paymentDate,
-      status: "Pending_Approval",
-      adminVerification: "unverified",
-      reference: values.reference,
-      receipts,
-    };
-
-    setContributions((prev) => [next, ...prev]);
-    toast.success("Contribution submitted — awaiting admin verification");
-  }
-
-  function handleUploadReceipt(contributionId: string, file: File): void {
-    setContributions((prev) =>
-      prev.map((c) => {
-        if (c._id !== contributionId) return c;
-        const nextReceipt = {
-          _id: `rcpt_${Date.now()}`,
-          fileName: file.name,
-          url: URL.createObjectURL(file),
-          uploadedAt: new Date().toISOString(),
-          uploadedByName:
-            `${user?.profile?.firstName ?? ""} ${user?.profile?.lastName ?? ""}`.trim() ||
-            "You",
-        };
-        const updated = {
-          ...c,
-          receipts: [...c.receipts, nextReceipt],
-          status:
-            c.status === "Missed" || c.status === "Pending"
-              ? ("Pending_Approval" as const)
-              : c.status,
-          adminVerification: "unverified" as const,
-        };
-        setSelected(updated);
-        return updated;
-      }),
-    );
-  }
-
-  function handleVerify(
+  async function handleReview(
     contributionId: string,
     status: Exclude<AdminVerificationStatus, "unverified">,
-  ): void {
-    setContributions((prev) =>
-      prev.map((c) => {
-        if (c._id !== contributionId) return c;
-        const updated: StokvelContribution = {
-          ...c,
-          adminVerification: status,
-          verifiedAt: new Date().toISOString().slice(0, 10),
-          verifiedByName:
-            `${user?.profile?.firstName ?? ""} ${user?.profile?.lastName ?? ""}`.trim() ||
-            "Admin",
-          status:
-            status === "verified"
-              ? c.status === "Pending_Approval"
-                ? "Paid_On_Time"
-                : c.status
-              : "Rejected",
-          verificationNote:
-            status === "rejected"
-              ? "Rejected by admin — please re-upload a clearer receipt"
-              : c.verificationNote,
-        };
-        setSelected(updated);
-        return updated;
-      }),
-    );
-    toast.success(
-      status === "verified" ? "Payment verified" : "Payment rejected",
-    );
+    reason: string,
+  ): Promise<boolean> {
+    try {
+      await reviewContribution({
+        stokvelId: id,
+        contributionId,
+        decision: status === "verified" ? "approve" : "reject",
+        reason: reason || undefined,
+      }).unwrap();
+      toast.success(
+        status === "verified" ? "Payment approved." : "Payment rejected.",
+      );
+      setDetailOpen(false);
+      return true;
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      return false;
+    }
   }
 
-  if (isLoading) return <Loader message="Loading contributions…" />;
-  if (error || !stokvel) {
-    const message =
-      error && "status" in error
-        ? `Request failed (${error.status})`
-        : "Could not load stokvel";
-    return <ErrorState message={message} />;
+  if (isLoadingStokvel || isLoadingContributions) {
+    return <Loader message="Loading stokvel payments…" />;
+  }
+  if (stokvelError || contributionError || !stokvel) {
+    return (
+      <ErrorState
+        message={getErrorMessage(contributionError ?? stokvelError)}
+      />
+    );
   }
 
   const columns: TableColumn<StokvelContribution>[] = [
@@ -296,10 +291,7 @@ export default function StokvelContributions({
         </div>
       ),
     },
-    {
-      key: "periodLabel",
-      header: "Period",
-    },
+    { key: "periodLabel", header: "Period" },
     {
       key: "amount",
       header: "Amount",
@@ -328,7 +320,7 @@ export default function StokvelContributions({
     },
     {
       key: "receipts",
-      header: "Receipts",
+      header: "Proofs",
       render: (_, row) => (
         <span className="text-xs text-slate-500">
           {row.receipts.length || "—"}
@@ -355,18 +347,19 @@ export default function StokvelContributions({
   return (
     <div className="p-6">
       <ContributionDetailModal
+        key={selected?._id ?? "none"}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         contribution={selected}
         isAdmin={isStokvelAdmin}
-        onUploadReceipt={handleUploadReceipt}
-        onVerify={handleVerify}
+        currentUserId={user?._id}
+        onVerify={handleReview}
       />
-      <RecordContributionModal
-        open={recordOpen}
-        onOpenChange={setRecordOpen}
-        defaultAmount={stokvel.monthlyContribution}
-        onSubmit={handleRecordContribution}
+      <PaymentProofModal
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        stokvels={[stokvel]}
+        fixedStokvelId={id}
       />
 
       <div className="mb-6">
@@ -383,7 +376,7 @@ export default function StokvelContributions({
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                    Contributions
+                    Payments
                   </h1>
                   <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-600">
                     <Wallet className="h-3 w-3" />
@@ -391,24 +384,16 @@ export default function StokvelContributions({
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-slate-500">
-                  {stokvel.name
-                    ? `Payments for ${stokvel.name}`
-                    : "Stokvel contribution ledger"}
-                </p>
-                <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-800">
-                  Mock data for UI review — wire to{" "}
-                  <code className="rounded bg-amber-100 px-1">
-                    GET /stokvels/:id/contributions
-                  </code>
+                  Payments for {stokvel.name}
                 </p>
               </div>
               <Button
                 type="button"
                 className="w-full shrink-0 sm:w-auto"
-                onClick={() => setRecordOpen(true)}
+                onClick={() => setUploadOpen(true)}
               >
                 <Upload className="h-4 w-4" />
-                Record contribution
+                Upload payment proof
               </Button>
             </div>
           </div>
@@ -419,7 +404,7 @@ export default function StokvelContributions({
               <Input
                 placeholder="Search member, period, status…"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(event) => setSearchTerm(event.target.value)}
                 className="pl-9"
               />
             </div>
@@ -430,11 +415,11 @@ export default function StokvelContributions({
       {filtered.length === 0 ? (
         <EmptyState
           icon={<Wallet className="h-8 w-8 text-slate-400" />}
-          title={searchTerm ? "No matching contributions" : "No contributions yet"}
+          title={searchTerm ? "No matching payments" : "No payments yet"}
           description={
             searchTerm
-              ? "Try a different name, period, or status"
-              : "Use Record contribution above to submit your first payment"
+              ? "Try a different member, period, or status."
+              : "Submitted payments and proofs will appear here."
           }
         />
       ) : (
@@ -454,14 +439,10 @@ export default function StokvelContributions({
         </>
       )}
 
-      <p
-        className={cn(
-          "mt-4 flex items-center gap-2 text-xs text-slate-400",
-        )}
-      >
+      <p className="mt-4 flex items-center gap-2 text-xs text-slate-400">
         <Upload className="h-3.5 w-3.5" />
-        Open a row to view details, upload receipts, and (as admin) verify
-        payments.
+        Open a payment to view its proof and review notes. Only other members&apos;
+        payments can be approved by a stokvel admin.
       </p>
     </div>
   );

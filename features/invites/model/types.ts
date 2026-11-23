@@ -1,21 +1,3 @@
-/**
- * Personal pending-invites inbox contract.
- *
- * Suggested backend endpoints:
- *   GET  /users/me/invites
- *        Query (optional): ?status=pending|accepted|declined&page=&size=
- *   GET  /users/me/invites/:id   (optional detail — or embed full stokvel+constitution in list)
- *
- * Accept / decline (already exists by code):
- *   PUT /stokvels/:code/update-invite  { newInviteStatus: "accepted" | "declined" }
- *
- * Response shape:
- *   { data: MyInviteItem[]; meta?: { page; size; total } }
- *
- * After accept: remove from pending list; stokvel appears in GET user stokvels.
- * After decline: remove from pending list (or filter status=declined if you keep history).
- */
-
 export type MyInviteStatus = "pending" | "accepted" | "declined";
 
 export interface MyInviteConstitutionSummary {
@@ -45,7 +27,7 @@ export interface MyInviteItem {
     type?: string;
     monthlyContribution?: number;
     contributionFrequency?: string;
-  };
+  } | null;
   /** Optional: who sent the invite (admin). */
   invitedBy?: {
     firstName: string;
