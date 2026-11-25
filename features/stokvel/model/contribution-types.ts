@@ -1,11 +1,10 @@
 /**
  * Stokvel-scoped contributions (group ledger).
  *
- * Suggested backend:
- *   GET  /stokvels/:stokvelId/contributions
- *   POST /stokvels/:stokvelId/contributions              { amount, periodLabel, paymentDate, reference? }
- *   POST /stokvels/:stokvelId/contributions/:id/receipts  (multipart)
- *   PUT  /stokvels/:stokvelId/contributions/:id/verify     { verified: boolean, note? }
+ * Backend:
+ *   GET   /monthly-contribution/stokvel/:stokvelId
+ *   POST  /monthly-contribution (multipart proof upload)
+ *   PATCH /monthly-contribution/:contributionId/review
  */
 
 export type ContributionPaymentStatus =
@@ -24,9 +23,11 @@ export type AdminVerificationStatus =
 export interface ContributionReceipt {
   _id: string;
   fileName: string;
-  /** URL or object URL for preview (mock uses placeholder) */
   url: string;
   uploadedAt: string;
+  note?: string | null;
+  reviewedAt?: string | null;
+  reviewedByName?: string;
   uploadedByName?: string;
 }
 
@@ -55,6 +56,6 @@ export interface StokvelContribution {
 
 export interface StokvelContributionsResponse {
   stokvel: { _id: string; name: string };
-  contributions: StokvelContribution[];
-  meta?: { page?: number; size?: number; total?: number };
+  canReview: boolean;
+  data: StokvelContribution[];
 }

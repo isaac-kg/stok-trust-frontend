@@ -12,12 +12,20 @@ import type {
   InviteDetailsResponse,
   StokvelMembersResponse
 } from './model/types';
+import type { MyInvitesResponse } from '@/features/invites/model/types';
 
 export const stokvelApi = createApi({
   reducerPath: 'stokvelApi',
   baseQuery: apiBaseQuery,
-  tagTypes: ['Stokvel'],
+  tagTypes: ['Stokvel', 'MyInvites'],
   endpoints: (builder) => ({
+    getMyInvites: builder.query<MyInvitesResponse, void>({
+      query: () => ({
+        url: '/users/me/invites',
+        method: 'GET',
+      }),
+      providesTags: ['MyInvites'],
+    }),
     createStokvel: builder.mutation<Stokvel, CreateStokvelRequest>({
       query: (body) => ({
         url: '/stokvels',
@@ -135,13 +143,16 @@ export const stokvelApi = createApi({
       }),
     }),
 
-    updateInvite: builder.mutation<{ success: boolean }, { code: string; newInviteStatus: string }>({
+    updateInvite: builder.mutation<
+      { success: boolean; inviteStatus: "accepted" | "declined" },
+      { code: string; newInviteStatus: "accepted" | "declined" }
+    >({
       query: ({ code, newInviteStatus }) => ({
         url: `/stokvels/${code}/update-invite`,
         method: "PUT",
         body: { newInviteStatus }
       }),
-      invalidatesTags: ["Stokvel"],
+      invalidatesTags: ["Stokvel", "MyInvites"],
     }),
 
     makeUserStokvelAdmin: builder.mutation<{ success: boolean }, { stokvelId: string; userId: string }>({
@@ -161,6 +172,7 @@ export const {
   useLazyDownloadConstitutionQuery,
   useGetInviteByCodeQuery,
   useLazyGetInviteByCodeQuery,
+  useGetMyInvitesQuery,
   useCreateStokvelMutation,
   useGetStokvelMembersQuery,
   useCreateStokvelInviteMutation,

@@ -1,12 +1,7 @@
 /**
  * Personal / cross-stokvel payment inbox contract.
  *
- * Suggested backend endpoint:
- *   GET /users/me/payments
- *   Query (optional): ?status=&type=&stokvelId=&page=&size=
- *
- * Response shape:
- *   { data: MyPaymentItem[]; meta?: { page; size; total } }
+ * The inbox adapts GET /monthly-contribution/me into these card items.
  */
 
 export type MyPaymentType = "contribution" | "payout";
